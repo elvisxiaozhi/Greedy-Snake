@@ -1,5 +1,7 @@
 #include "widget.h"
 #include "ui_widget.h"
+#include <QKeyEvent>
+#include <QDebug>
 
 const int Widget::rows = 30;
 const int Widget::cols = 30;
@@ -56,8 +58,78 @@ void Widget::showSnake()
 
 void Widget::generateFood()
 {
-    int row = rand() % rows;
-    int col = rand() % cols;
+    if (snakeVec.size() <= rows * cols) {
+        foodRow = rand() % rows;
+        foodCol = rand() % cols;
+    }
 
-    boardLblVec[row][col]->setStyleSheet("QLabel { background: yellow; }");
+    boardLblVec[foodRow][foodCol]->setStyleSheet("QLabel { background: yellow; }");
+}
+
+void Widget::removeOldSnake()
+{
+    for(int i = 0; i < snakeVec.size(); ++i) {
+        boardLblVec[snakeVec[i].first][snakeVec[i].second]->setStyleSheet("QLabel { border: 1px solid grey; }");
+    }
+}
+
+void Widget::gameOver()
+{
+    qDebug() << "Lost";
+}
+
+bool Widget::hasLost()
+{
+    if (snakeVec[0].first < 0 || snakeVec[0].first >= rows || snakeVec[0].second < 0 || snakeVec[0].second >= cols) {
+        return true;
+    }
+
+    return false;
+}
+
+bool Widget::hasFoodEaten()
+{
+    if (snakeVec[0].first == foodRow && snakeVec[0].second == foodCol) {
+        return true;
+    }
+
+    return false;
+}
+
+void Widget::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down || event->key() == Qt::Key_Left || event->key() == Qt::Key_Right) {
+        removeOldSnake();
+
+        if (event->key() == Qt::Key_Up) {
+            snakeVec.push_front(std::make_pair(snakeVec[0].first - 1, snakeVec[0].second));
+        }
+        else if (event->key() == Qt::Key_Down) {
+            snakeVec.push_front(std::make_pair(snakeVec[0].first + 1, snakeVec[0].second));
+        }
+        else if (event->key() == Qt::Key_Left) {
+            snakeVec.push_front(std::make_pair(snakeVec[0].first, snakeVec[0].second - 1));
+        }
+        else if (event->key() == Qt::Key_Right) {
+            snakeVec.push_front(std::make_pair(snakeVec[0].first, snakeVec[0].second + 1));
+        }
+
+        if (hasFoodEaten()) {
+            generateFood();
+        }
+        else {
+            snakeVec.pop_back();
+        }
+
+        if (hasLost()) {
+            snakeVec.pop_front();
+            showSnake();
+            boardLblVec[snakeVec[0].first][snakeVec[0].second]->setStyleSheet("QLabel { background: black; }");
+
+            gameOver();
+        }
+        else {
+            showSnake();
+        }
+    }
 }

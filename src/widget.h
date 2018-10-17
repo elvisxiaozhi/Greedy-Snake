@@ -21,6 +21,7 @@ private:
 
     static const int rows;
     static const int cols;
+    int foodRow, foodCol;
     QVector<QVector<BoardLabel *> > boardLblVec;
     QVector<std::pair<int, int> > snakeVec;
 
@@ -28,6 +29,13 @@ private:
     void createSnake();
     void showSnake();
     void generateFood();
+    void removeOldSnake();
+    void gameOver();
+    bool hasLost();
+    bool hasFoodEaten();
+
+protected:
+    void keyPressEvent(QKeyEvent *);
 };
 
 #endif // WIDGET_H
