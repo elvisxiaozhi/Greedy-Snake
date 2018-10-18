@@ -5,6 +5,10 @@
 
 const int Widget::rows = 30;
 const int Widget::cols = 30;
+const int Widget::UP = 0;
+const int Widget::DOWN = 1;
+const int Widget::LEFT = 2;
+const int Widget::RIGHT = 3;
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
@@ -15,6 +19,12 @@ Widget::Widget(QWidget *parent) :
     setBoardLayout();
     createSnake();
     generateFood();
+
+    timer = new QTimer(this);
+
+    connect(timer, &QTimer::timeout, this, &Widget::whenTimeOut);
+
+    timer->start(500);
 }
 
 Widget::~Widget()
@@ -48,6 +58,8 @@ void Widget::createSnake()
             }
         }
     }
+
+    snakeMoveDirection = RIGHT;
 
     showSnake();
 }
@@ -111,44 +123,73 @@ bool Widget::hasFoodEaten()
     return false;
 }
 
+void Widget::moveSnake(int direction)
+{
+    removeOldSnake();
+
+    //move snake head
+    switch (direction) {
+    case UP:
+        snakeVec.push_front(std::make_pair(snakeVec[0].first - 1, snakeVec[0].second));
+        break;
+    case DOWN:
+        snakeVec.push_front(std::make_pair(snakeVec[0].first + 1, snakeVec[0].second));
+        break;
+    case LEFT:
+        snakeVec.push_front(std::make_pair(snakeVec[0].first, snakeVec[0].second - 1));
+        break;
+    case RIGHT:
+        snakeVec.push_front(std::make_pair(snakeVec[0].first, snakeVec[0].second + 1));
+        break;
+    default:
+        break;
+    }
+
+    //move snake body
+    if (hasFoodEaten()) {
+        auto p = std::make_pair(snakeVec[0].first, snakeVec[0].second);
+        availPlaces.erase(std::remove(availPlaces.begin(), availPlaces.end(), p), availPlaces.end());
+
+        generateFood();
+    }
+    else {
+        availPlaces.push_back(std::make_pair(snakeVec[snakeVec.size() - 1].first, snakeVec[snakeVec.size() - 1].second));
+        snakeVec.pop_back();
+    }
+
+    if (hasLost()) {
+        snakeVec.pop_front();
+        showSnake();
+        boardLblVec[snakeVec[0].first][snakeVec[0].second]->setStyleSheet("QLabel { background: black; }");
+
+        gameOver();
+    }
+    else {
+        showSnake();
+    }
+}
+
 void Widget::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down || event->key() == Qt::Key_Left || event->key() == Qt::Key_Right) {
-        removeOldSnake();
-
         if (event->key() == Qt::Key_Up) {
-            snakeVec.push_front(std::make_pair(snakeVec[0].first - 1, snakeVec[0].second));
+            snakeMoveDirection = UP;
         }
         else if (event->key() == Qt::Key_Down) {
-            snakeVec.push_front(std::make_pair(snakeVec[0].first + 1, snakeVec[0].second));
+            snakeMoveDirection = DOWN;
         }
         else if (event->key() == Qt::Key_Left) {
-            snakeVec.push_front(std::make_pair(snakeVec[0].first, snakeVec[0].second - 1));
+            snakeMoveDirection = LEFT;
         }
         else if (event->key() == Qt::Key_Right) {
-            snakeVec.push_front(std::make_pair(snakeVec[0].first, snakeVec[0].second + 1));
+            snakeMoveDirection = RIGHT;
         }
 
-        if (hasFoodEaten()) {
-            auto p = std::make_pair(snakeVec[0].first, snakeVec[0].second);
-            availPlaces.erase(std::remove(availPlaces.begin(), availPlaces.end(), p), availPlaces.end());
-
-            generateFood();
-        }
-        else {
-            availPlaces.push_back(std::make_pair(snakeVec[snakeVec.size() - 1].first, snakeVec[snakeVec.size() - 1].second));
-            snakeVec.pop_back();
-        }
-
-        if (hasLost()) {
-            snakeVec.pop_front();
-            showSnake();
-            boardLblVec[snakeVec[0].first][snakeVec[0].second]->setStyleSheet("QLabel { background: black; }");
-
-            gameOver();
-        }
-        else {
-            showSnake();
-        }
+        moveSnake(snakeMoveDirection);
     }
+}
+
+void Widget::whenTimeOut()
+{
+    moveSnake(snakeMoveDirection);
 }

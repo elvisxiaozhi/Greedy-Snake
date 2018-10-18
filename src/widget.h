@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "boardlabel.h"
+#include <QTimer>
 
 namespace Ui {
 class Widget;
@@ -21,10 +22,16 @@ private:
 
     static const int rows;
     static const int cols;
+    static const int UP;
+    static const int DOWN;
+    static const int LEFT;
+    static const int RIGHT;
     int foodRow, foodCol;
     QVector<QVector<BoardLabel *> > boardLblVec;
     QVector<std::pair<int, int> > snakeVec;
     QVector<std::pair<int, int> > availPlaces;
+    QTimer *timer;
+    int snakeMoveDirection;
 
     void setBoardLayout();
     void createSnake();
@@ -34,9 +41,13 @@ private:
     void gameOver();
     bool hasLost();
     bool hasFoodEaten();
+    void moveSnake(int);
 
 protected:
     void keyPressEvent(QKeyEvent *);
+
+private slots:
+    void whenTimeOut();
 };
 
 #endif // WIDGET_H
