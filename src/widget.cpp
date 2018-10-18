@@ -41,6 +41,14 @@ void Widget::createSnake()
     snakeVec.push_back(std::make_pair(rows / 2, cols / 2 - 1));
     snakeVec.push_back(std::make_pair(rows / 2, cols / 2 - 2));
 
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            if (i != rows / 2 && j != cols / 2 && j != cols / 2 - 1 && j != cols / 2 - 2) {
+                availPlaces.push_back(std::make_pair(i, j));
+            }
+        }
+    }
+
     showSnake();
 }
 
@@ -58,9 +66,10 @@ void Widget::showSnake()
 
 void Widget::generateFood()
 {
-    if (snakeVec.size() <= rows * cols) {
-        foodRow = rand() % rows;
-        foodCol = rand() % cols;
+    if (availPlaces.size() > 0) {
+        int i = rand() % availPlaces.size();
+        foodRow = availPlaces[i].first;
+        foodCol = availPlaces[i].second;
     }
 
     boardLblVec[foodRow][foodCol]->setStyleSheet("QLabel { background: yellow; }");
@@ -121,9 +130,13 @@ void Widget::keyPressEvent(QKeyEvent *event)
         }
 
         if (hasFoodEaten()) {
+            auto p = std::make_pair(snakeVec[0].first, snakeVec[0].second);
+            availPlaces.erase(std::remove(availPlaces.begin(), availPlaces.end(), p), availPlaces.end());
+
             generateFood();
         }
         else {
+            availPlaces.push_back(std::make_pair(snakeVec[snakeVec.size() - 1].first, snakeVec[snakeVec.size() - 1].second));
             snakeVec.pop_back();
         }
 

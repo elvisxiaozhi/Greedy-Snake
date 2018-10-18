@@ -24,6 +24,7 @@ private:
     int foodRow, foodCol;
     QVector<QVector<BoardLabel *> > boardLblVec;
     QVector<std::pair<int, int> > snakeVec;
+    QVector<std::pair<int, int> > availPlaces;
 
     void setBoardLayout();
     void createSnake();
