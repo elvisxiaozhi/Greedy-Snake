@@ -84,6 +84,12 @@ bool Widget::hasLost()
         return true;
     }
 
+    auto p = std::make_pair(snakeVec[0].first, snakeVec[0].second);
+
+    if (std::find(snakeVec.begin() + 1, snakeVec.end(), p) != snakeVec.end()) {
+        return true;
+    }
+
     return false;
 }
 
