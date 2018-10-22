@@ -42,6 +42,8 @@ private:
     bool hasLost();
     bool hasFoodEaten();
     void moveSnake(int);
+    bool canFindTail();
+    void mapScores(int, int);
 
 protected:
     void keyPressEvent(QKeyEvent *);

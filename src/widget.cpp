@@ -70,6 +70,9 @@ void Widget::showSnake()
         if(i == 0) {
             boardLblVec[snakeVec[i].first][snakeVec[i].second]->setStyleSheet("QLabel { background: red; }");
         }
+        else if (i == snakeVec.size() - 1) {
+            boardLblVec[snakeVec[i].first][snakeVec[i].second]->setStyleSheet("QLabel { background: blue; }");
+        }
         else {
             boardLblVec[snakeVec[i].first][snakeVec[i].second]->setStyleSheet("QLabel { background: black; }");
         }
@@ -89,8 +92,16 @@ void Widget::generateFood()
 
 void Widget::removeOldSnake()
 {
-    for(int i = 0; i < snakeVec.size(); ++i) {
-        boardLblVec[snakeVec[i].first][snakeVec[i].second]->setStyleSheet("QLabel { border: 1px solid grey; }");
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            if (i == foodRow && j == foodCol) {
+                continue;
+            }
+            else {
+                boardLblVec[i][j]->setText("");
+                boardLblVec[i][j]->setStyleSheet("QLabel { border: 1px solid grey; }");
+            }
+        }
     }
 }
 
@@ -169,6 +180,33 @@ void Widget::moveSnake(int direction)
     }
 }
 
+bool Widget::canFindTail()
+{
+    mapScores(snakeVec[0].first, snakeVec[0].second);
+    return true;
+}
+
+void Widget::mapScores(int row, int col)
+{
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            auto p = std::make_pair(i, j);
+
+            if (std::find(snakeVec.begin(), snakeVec.end(), p) != snakeVec.end()) {
+                continue;
+            }
+            else if (i == foodRow && j == foodCol) {
+                continue;
+            }
+            else {
+                int score = 0;
+                score = std::abs(i - row) + std::abs(j - col);
+                boardLblVec[i][j]->setText(QString::number(score));
+            }
+        }
+    }
+}
+
 void Widget::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down || event->key() == Qt::Key_Left || event->key() == Qt::Key_Right) {
@@ -192,4 +230,5 @@ void Widget::keyPressEvent(QKeyEvent *event)
 void Widget::whenTimeOut()
 {
     moveSnake(snakeMoveDirection);
+    canFindTail();
 }
