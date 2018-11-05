@@ -3,8 +3,8 @@
 #include <QKeyEvent>
 #include <QDebug>
 
-const int Widget::rows = 30;
-const int Widget::cols = 30;
+const int Widget::ROWS = 30;
+const int Widget::COLS = 30;
 const int Widget::UP = 0;
 const int Widget::DOWN = 1;
 const int Widget::LEFT = 2;
@@ -24,7 +24,8 @@ Widget::Widget(QWidget *parent) :
 
     connect(timer, &QTimer::timeout, this, &Widget::whenTimeOut);
 
-    timer->start(500);
+//    timer->start(500);
+//    qDebug() << canFindTail();
 }
 
 Widget::~Widget()
@@ -34,9 +35,9 @@ Widget::~Widget()
 
 void Widget::setBoardLayout()
 {
-    for(int i = 0; i < rows; ++i) {
+    for(int i = 0; i < ROWS; ++i) {
         QVector<BoardLabel *> colVec;
-        for(int j = 0; j < cols; ++j) {
+        for(int j = 0; j < COLS; ++j) {
             BoardLabel *boardLabel = new BoardLabel(this);
             ui->gridLayout->addWidget(boardLabel, i, j);
             colVec.push_back(boardLabel);
@@ -47,13 +48,13 @@ void Widget::setBoardLayout()
 
 void Widget::createSnake()
 {
-    snakeVec.push_back(std::make_pair(rows / 2, cols / 2));
-    snakeVec.push_back(std::make_pair(rows / 2, cols / 2 - 1));
-    snakeVec.push_back(std::make_pair(rows / 2, cols / 2 - 2));
+    snakeVec.push_back(std::make_pair(ROWS / 2, COLS / 2));
+    snakeVec.push_back(std::make_pair(ROWS / 2, COLS / 2 - 1));
+    snakeVec.push_back(std::make_pair(ROWS / 2, COLS / 2 - 2));
 
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-            if (i != rows / 2 && j != cols / 2 && j != cols / 2 - 1 && j != cols / 2 - 2) {
+    for (int i = 0; i < ROWS; ++i) {
+        for (int j = 0; j < COLS; ++j) {
+            if (i != ROWS / 2 && j != COLS / 2 && j != COLS / 2 - 1 && j != COLS / 2 - 2) {
                 availPlaces.push_back(std::make_pair(i, j));
             }
         }
@@ -92,8 +93,8 @@ void Widget::generateFood()
 
 void Widget::removeOldSnake()
 {
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
+    for (int i = 0; i < ROWS; ++i) {
+        for (int j = 0; j < COLS; ++j) {
             if (i == foodRow && j == foodCol) {
                 continue;
             }
@@ -112,7 +113,7 @@ void Widget::gameOver()
 
 bool Widget::hasLost()
 {
-    if (snakeVec[0].first < 0 || snakeVec[0].first >= rows || snakeVec[0].second < 0 || snakeVec[0].second >= cols) {
+    if (snakeVec[0].first < 0 || snakeVec[0].first >= ROWS || snakeVec[0].second < 0 || snakeVec[0].second >= COLS) {
         return true;
     }
 
@@ -182,30 +183,79 @@ void Widget::moveSnake(int direction)
 
 bool Widget::canFindTail()
 {
-    mapScores(snakeVec[0].first, snakeVec[0].second);
-    return true;
+    auto it = std::make_pair(foodRow, foodCol);
+    if (std::find(queue.begin(), queue.end(), it) != queue.end()) {
+        return true;
+    }
+
+    return false;
 }
 
-void Widget::mapScores(int row, int col)
+bool Widget::canMoveThere(int row, int col)
 {
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-            auto p = std::make_pair(i, j);
+    if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
+        auto it = std::make_pair(row, col);
+        if (std::find(searchOutput.begin(), searchOutput.end(), it) != searchOutput.end()) {
+            return false;
+        }
+        else {
+//            if (std::find(snakeVec.begin() + 1, snakeVec.end() - 1))
+            return true;
+        }
+    }
 
-            if (std::find(snakeVec.begin(), snakeVec.end(), p) != snakeVec.end()) {
-                continue;
-            }
-            else if (i == foodRow && j == foodCol) {
-                continue;
-            }
-            else {
-                int score = 0;
-                score = std::abs(i - row) + std::abs(j - col);
-                boardLblVec[i][j]->setText(QString::number(score));
-            }
+    return false;
+}
+
+void Widget::BFS(int row, int col)
+{
+    if (canFindTail()) {
+        return;
+    }
+
+    searchOutput.push_back(std::make_pair(row, col));
+
+    if (queue.empty()) {
+        if (canMoveThere(row - 1, col)) {
+            queue.push_back(std::make_pair(row - 1, col));
+        }
+        if (canMoveThere(row + 1, col)) {
+            queue.push_back(std::make_pair(row + 1, col));
+        }
+        if (canMoveThere(row, col - 1)) {
+            queue.push_back(std::make_pair(row, col - 1));
+        }
+        if (canMoveThere(row, col + 1)) {
+            queue.push_back(std::make_pair(row, col + 1));
+        }
+    }
+    else {
+        while (!queue.empty()) {
+//            BFS (queue.first().first)
         }
     }
 }
+
+//void Widget::mapScores(int row, int col)
+//{
+//    for (int i = 0; i < rows; ++i) {
+//        for (int j = 0; j < cols; ++j) {
+//            auto p = std::make_pair(i, j);
+
+//            if (std::find(snakeVec.begin(), snakeVec.end(), p) != snakeVec.end()) {
+//                continue;
+//            }
+//            else if (i == foodRow && j == foodCol) {
+//                continue;
+//            }
+//            else {
+//                int score = 0;
+//                score = std::abs(i - row) + std::abs(j - col);
+//                boardLblVec[i][j]->setText(QString::number(score));
+//            }
+//        }
+//    }
+//}
 
 void Widget::keyPressEvent(QKeyEvent *event)
 {
@@ -230,5 +280,4 @@ void Widget::keyPressEvent(QKeyEvent *event)
 void Widget::whenTimeOut()
 {
     moveSnake(snakeMoveDirection);
-    canFindTail();
 }

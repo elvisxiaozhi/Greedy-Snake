@@ -20,8 +20,8 @@ public:
 private:
     Ui::Widget *ui;
 
-    static const int rows;
-    static const int cols;
+    static const int ROWS;
+    static const int COLS;
     static const int UP;
     static const int DOWN;
     static const int LEFT;
@@ -32,6 +32,8 @@ private:
     QVector<std::pair<int, int> > availPlaces;
     QTimer *timer;
     int snakeMoveDirection;
+    QVector<std::pair<int, int> > queue;
+    QVector<std::pair<int, int> > searchOutput;
 
     void setBoardLayout();
     void createSnake();
@@ -42,8 +44,11 @@ private:
     bool hasLost();
     bool hasFoodEaten();
     void moveSnake(int);
-    bool canFindTail();
     void mapScores(int, int);
+    bool canFindTail();
+    bool canMoveThere(int, int);
+    void BFS(int, int);
+
 
 protected:
     void keyPressEvent(QKeyEvent *);
