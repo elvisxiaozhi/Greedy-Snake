@@ -9,6 +9,7 @@ class BoardLabel : public QLabel
     Q_OBJECT
 public:
     explicit BoardLabel(QWidget *parent = nullptr);
+    bool visited;
 
 signals:
 

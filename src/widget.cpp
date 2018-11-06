@@ -183,46 +183,33 @@ bool Widget::canFindTail()
     return false;
 }
 
+void Widget::markAllVisited()
+{
+    for (int i = 0; i < snakeVec.size(); ++i) {
+        boardLblVec[snakeVec[i].first][snakeVec[i].second]->visited = true;
+    }
+}
+
+void Widget::unmarkAllVisited()
+{
+    for (int i = 0; i < boardLblVec.size(); ++i) {
+        for (int j = 0; j < boardLblVec[i].size(); ++j) {
+            boardLblVec[i][j]->visited = false;
+        }
+    }
+
+    markAllVisited();
+}
+
 bool Widget::canMoveThere(int row, int col)
 {
     if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
-        auto it = std::make_pair(row, col);
-        if (std::find(visitedPlaces.begin(), visitedPlaces.end(), it) != visitedPlaces.end()) {
-            return false;
-        }
-        else {
-            if (std::find(snakeVec.begin(), snakeVec.end(), it) != snakeVec.end()) {
-                return false;
-            }
-            else {
-                return true;
-            }
+        if (boardLblVec[row][col]->visited == false) {
+            return true;
         }
     }
 
     return false;
-}
-
-QVector<std::pair<int, int> > Widget::returnAdjacencyPlaces(int row, int col)
-{
-    QVector<std::pair<int, int> > result;
-
-    if (canMoveThere(row - 1, col)) {
-        result.push_back(std::make_pair(row - 1, col));
-    }
-    if (canMoveThere(row + 1, col)) {
-        result.push_back(std::make_pair(row + 1, col));
-    }
-    if (canMoveThere(row, col - 1)) {
-        result.push_back(std::make_pair(row, col - 1));
-    }
-    if (canMoveThere(row, col + 1)) {
-        result.push_back(std::make_pair(row, col + 1));
-    }
-
-    qDebug() << result << "Res";
-
-    return result;
 }
 
 void Widget::BFS(int row, int col)
@@ -236,14 +223,23 @@ void Widget::BFS(int row, int col)
         int queueCol = queue.front().second;
         queue.pop_front();
 
-        visitedPlaces.push_back(std::make_pair(queueRow, queueCol));
+        if (queueRow == foodRow && queueCol == foodCol) {
+            break;
+        }
 
-        QVector<std::pair<int, int> > adj = returnAdjacencyPlaces(queueRow, queueCol);
-        for (int i = 0; i < adj.size(); ++i) {
-            if (adj[i].first == foodRow && adj[i].second == foodCol) {
-                return;
-            }
-            queue.push_back(std::make_pair(adj[i].first, adj[i].second));
+        boardLblVec[queueRow][queueCol]->visited = true;
+
+        if (canMoveThere(queueRow - 1, queueCol)) {
+            queue.push_back(std::make_pair(queueRow - 1, queueCol));
+        }
+        else if (canMoveThere(queueRow + 1, queueCol)) {
+            queue.push_back(std::make_pair(queueRow + 1, queueCol));
+        }
+        else if (canMoveThere(queueRow, queueCol - 1)) {
+            queue.push_back(std::make_pair(queueRow, queueCol - 1));
+        }
+        else if (canMoveThere(queueRow, queueCol + 1)) {
+            queue.push_back(std::make_pair(queueRow, queueCol + 1));
         }
     }
 }
@@ -265,10 +261,8 @@ void Widget::keyPressEvent(QKeyEvent *event)
         }
 
         moveSnake(snakeMoveDirection);
-        returnAdjacencyPlaces(snakeVec[0].first, snakeVec[0].second);
-//        BFS(snakeVec[0].first, snakeVec[0].second);
-//        visitedPlaces.clear();
-
+        BFS(snakeVec[0].first, snakeVec[0].second);
+        unmarkAllVisited();
     }
 }
 
