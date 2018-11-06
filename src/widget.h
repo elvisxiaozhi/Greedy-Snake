@@ -32,8 +32,7 @@ private:
     QVector<std::pair<int, int> > availPlaces;
     QTimer *timer;
     int snakeMoveDirection;
-    QVector<std::pair<int, int> > queue;
-    QVector<std::pair<int, int> > searchOutput;
+    QVector<std::pair<int, int> > visitedPlaces;
 
     void setBoardLayout();
     void createSnake();
@@ -44,11 +43,10 @@ private:
     bool hasLost();
     bool hasFoodEaten();
     void moveSnake(int);
-    void mapScores(int, int);
     bool canFindTail();
     bool canMoveThere(int, int);
+    QVector<std::pair<int, int> > returnAdjacencyPlaces(int, int);
     void BFS(int, int);
-
 
 protected:
     void keyPressEvent(QKeyEvent *);

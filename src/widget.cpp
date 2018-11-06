@@ -23,9 +23,6 @@ Widget::Widget(QWidget *parent) :
     timer = new QTimer(this);
 
     connect(timer, &QTimer::timeout, this, &Widget::whenTimeOut);
-
-//    timer->start(500);
-//    qDebug() << canFindTail();
 }
 
 Widget::~Widget()
@@ -183,11 +180,6 @@ void Widget::moveSnake(int direction)
 
 bool Widget::canFindTail()
 {
-    auto it = std::make_pair(foodRow, foodCol);
-    if (std::find(queue.begin(), queue.end(), it) != queue.end()) {
-        return true;
-    }
-
     return false;
 }
 
@@ -195,67 +187,66 @@ bool Widget::canMoveThere(int row, int col)
 {
     if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
         auto it = std::make_pair(row, col);
-        if (std::find(searchOutput.begin(), searchOutput.end(), it) != searchOutput.end()) {
+        if (std::find(visitedPlaces.begin(), visitedPlaces.end(), it) != visitedPlaces.end()) {
             return false;
         }
         else {
-//            if (std::find(snakeVec.begin() + 1, snakeVec.end() - 1))
-            return true;
+            if (std::find(snakeVec.begin(), snakeVec.end(), it) != snakeVec.end()) {
+                return false;
+            }
+            else {
+                return true;
+            }
         }
     }
 
     return false;
 }
 
+QVector<std::pair<int, int> > Widget::returnAdjacencyPlaces(int row, int col)
+{
+    QVector<std::pair<int, int> > result;
+
+    if (canMoveThere(row - 1, col)) {
+        result.push_back(std::make_pair(row - 1, col));
+    }
+    if (canMoveThere(row + 1, col)) {
+        result.push_back(std::make_pair(row + 1, col));
+    }
+    if (canMoveThere(row, col - 1)) {
+        result.push_back(std::make_pair(row, col - 1));
+    }
+    if (canMoveThere(row, col + 1)) {
+        result.push_back(std::make_pair(row, col + 1));
+    }
+
+    qDebug() << result << "Res";
+
+    return result;
+}
+
 void Widget::BFS(int row, int col)
 {
-    if (canFindTail()) {
-        return;
-    }
+    QVector<std::pair<int, int> > queue;
 
-    searchOutput.push_back(std::make_pair(row, col));
+    queue.push_back(std::make_pair(row, col));
 
-    if (queue.empty()) {
-        if (canMoveThere(row - 1, col)) {
-            queue.push_back(std::make_pair(row - 1, col));
-        }
-        if (canMoveThere(row + 1, col)) {
-            queue.push_back(std::make_pair(row + 1, col));
-        }
-        if (canMoveThere(row, col - 1)) {
-            queue.push_back(std::make_pair(row, col - 1));
-        }
-        if (canMoveThere(row, col + 1)) {
-            queue.push_back(std::make_pair(row, col + 1));
-        }
-    }
-    else {
-        while (!queue.empty()) {
-//            BFS (queue.first().first)
+    while (!queue.empty()) {
+        int queueRow = queue.front().first;
+        int queueCol = queue.front().second;
+        queue.pop_front();
+
+        visitedPlaces.push_back(std::make_pair(queueRow, queueCol));
+
+        QVector<std::pair<int, int> > adj = returnAdjacencyPlaces(queueRow, queueCol);
+        for (int i = 0; i < adj.size(); ++i) {
+            if (adj[i].first == foodRow && adj[i].second == foodCol) {
+                return;
+            }
+            queue.push_back(std::make_pair(adj[i].first, adj[i].second));
         }
     }
 }
-
-//void Widget::mapScores(int row, int col)
-//{
-//    for (int i = 0; i < rows; ++i) {
-//        for (int j = 0; j < cols; ++j) {
-//            auto p = std::make_pair(i, j);
-
-//            if (std::find(snakeVec.begin(), snakeVec.end(), p) != snakeVec.end()) {
-//                continue;
-//            }
-//            else if (i == foodRow && j == foodCol) {
-//                continue;
-//            }
-//            else {
-//                int score = 0;
-//                score = std::abs(i - row) + std::abs(j - col);
-//                boardLblVec[i][j]->setText(QString::number(score));
-//            }
-//        }
-//    }
-//}
 
 void Widget::keyPressEvent(QKeyEvent *event)
 {
@@ -274,6 +265,10 @@ void Widget::keyPressEvent(QKeyEvent *event)
         }
 
         moveSnake(snakeMoveDirection);
+        returnAdjacencyPlaces(snakeVec[0].first, snakeVec[0].second);
+//        BFS(snakeVec[0].first, snakeVec[0].second);
+//        visitedPlaces.clear();
+
     }
 }
 
