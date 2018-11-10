@@ -30,7 +30,8 @@ SOURCES += \
 
 HEADERS += \
         widget.h \
-    boardlabel.h
+    boardlabel.h \
+    tree.h
 
 FORMS += \
         widget.ui

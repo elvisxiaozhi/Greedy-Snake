@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "boardlabel.h"
 #include <QTimer>
+#include "tree.h"
 
 namespace Ui {
 class Widget;
@@ -42,6 +43,8 @@ private:
     bool hasLost();
     bool hasFoodEaten();
     void moveSnake(int);
+    void moveSnakeHead(int, QVector<std::pair<int, int> > &);
+    void moveVirtualSnake(int, QVector<std::pair<int, int> > &);
     bool canFindTail();
     void markAllVisited();
     void unmarkAllVisited();

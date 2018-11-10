@@ -20,9 +20,18 @@ Widget::Widget(QWidget *parent) :
     createSnake();
     generateFood();
 
-    timer = new QTimer(this);
+    timer = new QTimer(this); 
+//    timer->start(1000);
 
     connect(timer, &QTimer::timeout, this, &Widget::whenTimeOut);
+
+    Node *root = new Node(0, 0);
+    (root->child).push_back(new Node(1, 0));
+    (root->child).push_back(new Node(1, 1));
+    (root->child[0]->child).push_back(new Node(2, 0));
+    (root->child[0]->child).push_back(new Node(2, 1));
+
+    root->levelOrderTraversal(root);
 }
 
 Widget::~Widget()
@@ -137,22 +146,7 @@ void Widget::moveSnake(int direction)
     removeOldSnake();
 
     //move snake head
-    switch (direction) {
-    case UP:
-        snakeVec.push_front(std::make_pair(snakeVec[0].first - 1, snakeVec[0].second));
-        break;
-    case DOWN:
-        snakeVec.push_front(std::make_pair(snakeVec[0].first + 1, snakeVec[0].second));
-        break;
-    case LEFT:
-        snakeVec.push_front(std::make_pair(snakeVec[0].first, snakeVec[0].second - 1));
-        break;
-    case RIGHT:
-        snakeVec.push_front(std::make_pair(snakeVec[0].first, snakeVec[0].second + 1));
-        break;
-    default:
-        break;
-    }
+    moveSnakeHead(direction, snakeVec);
 
     //move snake body
     if (hasFoodEaten()) {
@@ -176,6 +170,32 @@ void Widget::moveSnake(int direction)
     else {
         showSnake();
     }
+}
+
+void Widget::moveSnakeHead(int direction, QVector<std::pair<int, int> > &snake)
+{
+    switch (direction) {
+    case UP:
+        snake.push_front(std::make_pair(snake[0].first - 1, snake[0].second));
+        break;
+    case DOWN:
+        snake.push_front(std::make_pair(snake[0].first + 1, snake[0].second));
+        break;
+    case LEFT:
+        snake.push_front(std::make_pair(snake[0].first, snake[0].second - 1));
+        break;
+    case RIGHT:
+        snake.push_front(std::make_pair(snake[0].first, snake[0].second + 1));
+        break;
+    default:
+        break;
+    }
+}
+
+void Widget::moveVirtualSnake(int direction, QVector<std::pair<int, int> > &snake)
+{
+    moveSnakeHead(direction, snake);
+    snake.pop_back();
 }
 
 bool Widget::canFindTail()
@@ -215,6 +235,7 @@ bool Widget::canMoveThere(int row, int col)
 void Widget::BFS(int row, int col)
 {
     QVector<std::pair<int, int> > queue;
+    QVector<std::pair<int, int> > visited;
 
     queue.push_back(std::make_pair(row, col));
 
@@ -222,6 +243,8 @@ void Widget::BFS(int row, int col)
         int queueRow = queue.front().first;
         int queueCol = queue.front().second;
         queue.pop_front();
+
+        visited.push_back(std::make_pair(queueRow, queueCol));
 
         if (queueRow == foodRow && queueCol == foodCol) {
             break;
@@ -242,6 +265,8 @@ void Widget::BFS(int row, int col)
             queue.push_back(std::make_pair(queueRow, queueCol + 1));
         }
     }
+
+    qDebug() << visited << "Done";
 }
 
 void Widget::keyPressEvent(QKeyEvent *event)
@@ -269,4 +294,6 @@ void Widget::keyPressEvent(QKeyEvent *event)
 void Widget::whenTimeOut()
 {
     moveSnake(snakeMoveDirection);
+    QVector<std::pair<int, int> > snakeVecCopy(snakeVec);
+    moveVirtualSnake(snakeMoveDirection, snakeVecCopy);
 }
