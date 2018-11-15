@@ -31,7 +31,17 @@ Widget::Widget(QWidget *parent) :
     (root->child[0]->child).push_back(new Node(2, 0));
     (root->child[0]->child).push_back(new Node(2, 1));
 
-    root->levelOrderTraversal(root);
+    QVector<std::pair<int, int> > path, res;
+    root->rootToLeaf(root, path, res);
+
+    for (int i = 0; i < res.size(); ++i) {
+        if (res[i].first == INT_MAX && res[i].second == INT_MAX) {
+           qDebug() << endl;
+        }
+        else {
+            qDebug().noquote() << res[i].first << "  " << res[i].second;
+        }
+    }
 }
 
 Widget::~Widget()
