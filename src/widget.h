@@ -33,6 +33,8 @@ private:
     QVector<std::pair<int, int> > availPlaces;
     QTimer *timer;
     int snakeMoveDirection;
+    Node *root;
+    QVector<std::pair<int, int> > res;
 
     void setBoardLayout();
     void createSnake();

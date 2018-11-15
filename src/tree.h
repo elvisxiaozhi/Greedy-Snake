@@ -33,6 +33,23 @@ struct Node
             }
         }
     }
+
+    void deleteTree(Node *node) {
+        if (node == nullptr)
+            return;
+
+        for (int i = 0; i < node->child.size(); ++i) {
+            deleteTree(node->child[i]);
+        }
+
+        delete node;
+
+        for (int i = 0; i < node->child.size(); ++i) {
+            node->child[i] = nullptr;
+        }
+
+        node = nullptr;
+    }
 };
 
 #endif // TREE_H

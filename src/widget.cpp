@@ -2,6 +2,7 @@
 #include "ui_widget.h"
 #include <QKeyEvent>
 #include <QDebug>
+#include <QQueue>
 
 const int Widget::ROWS = 30;
 const int Widget::COLS = 30;
@@ -25,23 +26,25 @@ Widget::Widget(QWidget *parent) :
 
     connect(timer, &QTimer::timeout, this, &Widget::whenTimeOut);
 
-    Node *root = new Node(0, 0);
-    (root->child).push_back(new Node(1, 0));
-    (root->child).push_back(new Node(1, 1));
-    (root->child[0]->child).push_back(new Node(2, 0));
-    (root->child[0]->child).push_back(new Node(2, 1));
+//    root = new Node(0, 0);
+//    (root->child).push_back(new Node(1, 0));
+//    (root->child).push_back(new Node(1, 1));
+//    (root->child[0]->child).push_back(new Node(2, 0));
+//    (root->child[0]->child).push_back(new Node(2, 1));
 
-    QVector<std::pair<int, int> > path, res;
-    root->rootToLeaf(root, path, res);
+//    QVector<std::pair<int, int> > path;
+//    root->rootToLeaf(root, path, res);
 
-    for (int i = 0; i < res.size(); ++i) {
-        if (res[i].first == INT_MAX && res[i].second == INT_MAX) {
-           qDebug() << endl;
-        }
-        else {
-            qDebug().noquote() << res[i].first << "  " << res[i].second;
-        }
-    }
+//    for (int i = 0; i < res.size(); ++i) {
+//        if (res[i].first == INT_MAX && res[i].second == INT_MAX) {
+//           qDebug() << endl;
+//        }
+//        else {
+//            qDebug().noquote() << res[i].first << "  " << res[i].second;
+//        }
+//    }
+
+    BFS(0, 0);
 }
 
 Widget::~Widget()
@@ -244,39 +247,20 @@ bool Widget::canMoveThere(int row, int col)
 
 void Widget::BFS(int row, int col)
 {
-    QVector<std::pair<int, int> > queue;
-    QVector<std::pair<int, int> > visited;
+//    root->deleteTree(root);
+//    res.clear();
 
-    queue.push_back(std::make_pair(row, col));
+    QQueue<Node *> queue;
+    root = new Node(row, col);
+    queue.push_back(root);
 
     while (!queue.empty()) {
-        int queueRow = queue.front().first;
-        int queueCol = queue.front().second;
+        row = queue.front()->row;
+        col = queue.front()->col;
         queue.pop_front();
 
-        visited.push_back(std::make_pair(queueRow, queueCol));
-
-        if (queueRow == foodRow && queueCol == foodCol) {
-            break;
-        }
-
-        boardLblVec[queueRow][queueCol]->visited = true;
-
-        if (canMoveThere(queueRow - 1, queueCol)) {
-            queue.push_back(std::make_pair(queueRow - 1, queueCol));
-        }
-        else if (canMoveThere(queueRow + 1, queueCol)) {
-            queue.push_back(std::make_pair(queueRow + 1, queueCol));
-        }
-        else if (canMoveThere(queueRow, queueCol - 1)) {
-            queue.push_back(std::make_pair(queueRow, queueCol - 1));
-        }
-        else if (canMoveThere(queueRow, queueCol + 1)) {
-            queue.push_back(std::make_pair(queueRow, queueCol + 1));
-        }
+//        qDebug() << row << col;
     }
-
-    qDebug() << visited << "Done";
 }
 
 void Widget::keyPressEvent(QKeyEvent *event)
