@@ -34,6 +34,13 @@ struct Node
         }
     }
 
+    Node *makeChild(Node *root, int row, int col) {
+        root->child.push_back(new Node(row, col));
+        Node *temp = root->child[root->child.size() - 1];
+        return temp;
+    }
+
+
     void deleteTree(Node *node) {
         if (node == nullptr)
             return;

@@ -4,8 +4,8 @@
 #include <QDebug>
 #include <QQueue>
 
-const int Widget::ROWS = 30;
-const int Widget::COLS = 30;
+const int Widget::ROWS = 10;
+const int Widget::COLS = 10;
 const int Widget::UP = 0;
 const int Widget::DOWN = 1;
 const int Widget::LEFT = 2;
@@ -44,7 +44,7 @@ Widget::Widget(QWidget *parent) :
 //        }
 //    }
 
-    BFS(0, 0);
+    BFS(5, 5);
 }
 
 Widget::~Widget()
@@ -234,32 +234,57 @@ void Widget::unmarkAllVisited()
     markAllVisited();
 }
 
-bool Widget::canMoveThere(int row, int col)
+QVector<std::pair<int, int> > Widget::returnNbrPlaces(int row, int col)
 {
-    if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
-        if (boardLblVec[row][col]->visited == false) {
-            return true;
+    QVector<std::pair<int, int> > res;
+
+    if (row - 1 >= 0) {
+        if (boardLblVec[row - 1][col]->visited == false) {
+            res.push_back(std::make_pair(row - 1, col));
+        }
+    }
+    if (row + 1 < ROWS) {
+        if (boardLblVec[row + 1][col]->visited == false) {
+            res.push_back(std::make_pair(row + 1, col));
+        }
+    }
+    if (col - 1 >= 0) {
+        if (boardLblVec[row][col - 1]->visited == false) {
+            res.push_back(std::make_pair(row, col - 1));
+        }
+    }
+    if (col + 1 < COLS) {
+        if (boardLblVec[row][col + 1]->visited == false) {
+            res.push_back(std::make_pair(row, col + 1));
         }
     }
 
-    return false;
+    return res;
 }
 
 void Widget::BFS(int row, int col)
 {
-//    root->deleteTree(root);
-//    res.clear();
-
-    QQueue<Node *> queue;
-    root = new Node(row, col);
-    queue.push_back(root);
+    QQueue<std::pair<int, int> > queue;
+    queue.push_back(std::make_pair(row, col));
 
     while (!queue.empty()) {
-        row = queue.front()->row;
-        col = queue.front()->col;
+        row = queue.front().first;
+        col = queue.front().second;
         queue.pop_front();
 
-//        qDebug() << row << col;
+        boardLblVec[row][col]->visited = true;
+
+        QVector<std::pair<int, int> > neighbors = returnNbrPlaces(row, col);
+
+        for (int i = 0; i < neighbors.size(); ++i) {
+            queue.push_back(std::make_pair(neighbors[i].first, neighbors[i].second));
+        }
+    }
+
+    for (int i = 0; i < ROWS; ++i) {
+        for (int j = 0; j < COLS; ++j) {
+            qDebug() << boardLblVec[row][col]->visited;
+        }
     }
 }
 

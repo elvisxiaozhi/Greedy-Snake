@@ -50,7 +50,7 @@ private:
     bool canFindTail();
     void markAllVisited();
     void unmarkAllVisited();
-    bool canMoveThere(int, int);
+    QVector<std::pair<int, int> > returnNbrPlaces(int, int);
     void BFS(int, int);
 
 protected:
