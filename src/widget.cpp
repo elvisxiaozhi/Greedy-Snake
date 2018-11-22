@@ -22,16 +22,9 @@ Widget::Widget(QWidget *parent) :
     generateFood();
 
     timer = new QTimer(this); 
-//    timer->start(1000);
+    timer->start(100);
 
     connect(timer, &QTimer::timeout, this, &Widget::whenTimeOut);
-
-    BFS(5, 5);
-
-    QVector<std::pair<int, int> > path;
-    root->rootToLeaf(root, path, res);
-
-    qDebug() << returnFindFoodPath();
 }
 
 Widget::~Widget()
@@ -203,14 +196,7 @@ bool Widget::canFindTail()
     return false;
 }
 
-void Widget::markAllVisited()
-{
-    for (int i = 0; i < snakeVec.size(); ++i) {
-        boardLblVec[snakeVec[i].first][snakeVec[i].second]->visited = true;
-    }
-}
-
-void Widget::unmarkAllVisited()
+void Widget::resetVisited()
 {
     for (int i = 0; i < boardLblVec.size(); ++i) {
         for (int j = 0; j < boardLblVec[i].size(); ++j) {
@@ -218,7 +204,9 @@ void Widget::unmarkAllVisited()
         }
     }
 
-    markAllVisited();
+    for (int i = 0; i < snakeVec.size(); ++i) {
+        boardLblVec[snakeVec[i].first][snakeVec[i].second]->visited = true;
+    }
 }
 
 QVector<std::pair<int, int> > Widget::returnNbrPlaces(int row, int col)
@@ -251,6 +239,11 @@ QVector<std::pair<int, int> > Widget::returnNbrPlaces(int row, int col)
 
 void Widget::BFS(int row, int col)
 {
+    resetVisited();
+
+//    if (root != nullptr)
+//        root->deleteTree(root);
+
     QQueue<Node *> queue;
     root = new Node(row, col);
     queue.push_back(root);
@@ -306,6 +299,34 @@ bool Widget::canFindObject(int row, int col, QVector<std::pair<int, int> > mVec)
     return false;
 }
 
+void Widget::getSnakeMoveDirection()
+{
+    BFS(snakeVec[0].first, snakeVec[0].second);
+    QVector<std::pair<int, int> > path;
+    res.clear();
+    root->rootToLeaf(root, path, res);
+
+    path = returnFindFoodPath();
+
+    qDebug() << path;
+
+    if (!path.empty()) {
+        int row = path[1].first;
+        int col = path[1].second;
+
+        if (row > snakeVec[0].first)
+            snakeMoveDirection = DOWN;
+        if (row < snakeVec[0].first)
+            snakeMoveDirection = UP;
+        if (col > snakeVec[0].second)
+            snakeMoveDirection = RIGHT;
+        if (col < snakeVec[0].second)
+            snakeMoveDirection = LEFT;
+    }
+
+    qDebug() << snakeMoveDirection;
+}
+
 void Widget::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down || event->key() == Qt::Key_Left || event->key() == Qt::Key_Right) {
@@ -322,14 +343,16 @@ void Widget::keyPressEvent(QKeyEvent *event)
             snakeMoveDirection = RIGHT;
         }
 
-        moveSnake(snakeMoveDirection);
-        BFS(snakeVec[0].first, snakeVec[0].second);
-        unmarkAllVisited();
     }
+//    getSnakeMoveDirection();
+//    moveSnake(snakeMoveDirection);
 }
 
 void Widget::whenTimeOut()
 {
+
+    getSnakeMoveDirection();
+
     moveSnake(snakeMoveDirection);
     QVector<std::pair<int, int> > snakeVecCopy(snakeVec);
     moveVirtualSnake(snakeMoveDirection, snakeVecCopy);

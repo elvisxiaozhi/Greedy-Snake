@@ -48,12 +48,12 @@ private:
     void moveSnakeHead(int, QVector<std::pair<int, int> > &);
     void moveVirtualSnake(int, QVector<std::pair<int, int> > &);
     bool canFindTail();
-    void markAllVisited();
-    void unmarkAllVisited();
+    void resetVisited();
     QVector<std::pair<int, int> > returnNbrPlaces(int, int);
     void BFS(int, int);
     QVector<std::pair<int, int> > returnFindFoodPath();
     bool canFindObject(int, int, QVector<std::pair<int, int> >);
+    void getSnakeMoveDirection();
 
 protected:
     void keyPressEvent(QKeyEvent *);
