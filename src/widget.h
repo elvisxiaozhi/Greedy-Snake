@@ -34,7 +34,7 @@ private:
     QTimer *timer;
     int snakeMoveDirection;
     Node *root;
-    QVector<std::pair<int, int> > res;
+    QVector<QVector<std::pair<int, int> > > res;
 
     void setBoardLayout();
     void createSnake();
@@ -52,6 +52,7 @@ private:
     void unmarkAllVisited();
     QVector<std::pair<int, int> > returnNbrPlaces(int, int);
     void BFS(int, int);
+    QVector<std::pair<int, int> > returnFindFoodPath();
 
 protected:
     void keyPressEvent(QKeyEvent *);

@@ -31,14 +31,7 @@ Widget::Widget(QWidget *parent) :
     QVector<std::pair<int, int> > path;
     root->rootToLeaf(root, path, res);
 
-    for (int i = 0; i < res.size(); ++i) {
-        if (res[i].first == INT_MAX && res[i].second == INT_MAX) {
-           qDebug() << endl;
-        }
-        else {
-            qDebug().noquote() << res[i].first << "  " << res[i].second;
-        }
-    }
+    qDebug() << res;
 }
 
 Widget::~Widget()
@@ -277,10 +270,31 @@ void Widget::BFS(int row, int col)
         for (int i = 0; i < neighbors.size(); ++i) {
             boardLblVec[neighbors[i].first][neighbors[i].second]->visited = true;
             queue.push_back(root->makeChild(curr, neighbors[i].first, neighbors[i].second));
+            if (neighbors[i].first == foodRow && neighbors[i].second == foodCol) {
+                return;
+            }
         }
     }
 
     delete curr;
+}
+
+QVector<std::pair<int, int> > Widget::returnFindFoodPath()
+{
+    QVector<std::pair<int, int> > path;
+
+//    root->rootToLeaf(root, path, res);
+
+//    for (int i = 0; i < res.size(); ++i) {
+//        if (res[i].first == INT_MAX && res[i].second == INT_MAX) {
+//           qDebug() << endl;
+//        }
+//        else {
+//            qDebug().noquote() << res[i].first << "  " << res[i].second;
+//        }
+//    }
+
+    return path;
 }
 
 void Widget::keyPressEvent(QKeyEvent *event)
