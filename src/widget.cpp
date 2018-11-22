@@ -4,8 +4,8 @@
 #include <QDebug>
 #include <QQueue>
 
-const int Widget::ROWS = 5;
-const int Widget::COLS = 5;
+const int Widget::ROWS = 10;
+const int Widget::COLS = 10;
 const int Widget::UP = 0;
 const int Widget::DOWN = 1;
 const int Widget::LEFT = 2;
@@ -23,7 +23,7 @@ Widget::Widget(QWidget *parent) :
     showSnakeAndFood();
 
     timer = new QTimer(this); 
-//    timer->start(100);
+    timer->start(100);
 
     connect(timer, &QTimer::timeout, this, &Widget::whenTimeOut);
 }
