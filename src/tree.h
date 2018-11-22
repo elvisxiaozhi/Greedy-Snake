@@ -13,7 +13,7 @@ struct Node
     Node *childNode;
     Node(int x, int y) : row(x), col(y), childNode(nullptr) { visited = false; }
 
-    void rootToLeaf(Node *node, QVector<std::pair<int, int> > &path, QVector<QVector<std::pair<int, int> > > &res) {
+    void rootToLeaf(Node *node, QVector<std::pair<int, int> > path, QVector<QVector<std::pair<int, int> > > &res) {
         if (node == nullptr)
             return;
 

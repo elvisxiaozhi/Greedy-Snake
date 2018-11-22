@@ -53,6 +53,7 @@ private:
     QVector<std::pair<int, int> > returnNbrPlaces(int, int);
     void BFS(int, int);
     QVector<std::pair<int, int> > returnFindFoodPath();
+    bool canFindObject(int, int, QVector<std::pair<int, int> >);
 
 protected:
     void keyPressEvent(QKeyEvent *);

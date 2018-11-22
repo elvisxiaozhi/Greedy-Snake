@@ -31,7 +31,7 @@ Widget::Widget(QWidget *parent) :
     QVector<std::pair<int, int> > path;
     root->rootToLeaf(root, path, res);
 
-    qDebug() << res;
+    qDebug() << returnFindFoodPath();
 }
 
 Widget::~Widget()
@@ -282,19 +282,28 @@ void Widget::BFS(int row, int col)
 QVector<std::pair<int, int> > Widget::returnFindFoodPath()
 {
     QVector<std::pair<int, int> > path;
+    path.clear();
 
-//    root->rootToLeaf(root, path, res);
+    root->rootToLeaf(root, path, res);
 
-//    for (int i = 0; i < res.size(); ++i) {
-//        if (res[i].first == INT_MAX && res[i].second == INT_MAX) {
-//           qDebug() << endl;
-//        }
-//        else {
-//            qDebug().noquote() << res[i].first << "  " << res[i].second;
-//        }
-//    }
+    for (int i = 0; i < res.size(); ++i) {
+        if (canFindObject(foodRow, foodCol, res[i])) {
+            path.swap(res[i]);
+            return path;
+        }
+    }
 
     return path;
+}
+
+bool Widget::canFindObject(int row, int col, QVector<std::pair<int, int> > mVec)
+{
+    auto it = std::make_pair(row, col);
+
+    if (std::find(mVec.begin(), mVec.end(), it) != mVec.end())
+        return true;
+
+    return false;
 }
 
 void Widget::keyPressEvent(QKeyEvent *event)
