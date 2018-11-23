@@ -211,12 +211,19 @@ void Widget::moveSnakeHead(int direction, QVector<std::pair<int, int> > &snake)
     }
 }
 
+bool Widget::canFindFood()
+{
+    snakeMoveDirection = getSnakeMoveDirection(FIND_FOOD);
+    if (snakeMoveDirection != NO_DIRECTION)
+        return true;
+
+    return false;
+}
+
 bool Widget::canFindTail()
 {
-    tempSnakeVec.clear();
-    tempSnakeVec = snakeVec;
-
-    if (getSnakeMoveDirection(FIND_TAIL) != NO_DIRECTION)
+    snakeMoveDirection = getSnakeMoveDirection(FIND_TAIL);
+    if (snakeMoveDirection != NO_DIRECTION)
         return true;
 
     return false;
@@ -375,9 +382,33 @@ void Widget::keyPressEvent(QKeyEvent *event)
 
 void Widget::whenTimeOut()
 {
-    moveSnake(getSnakeMoveDirection(FIND_FOOD));
-    if (!canFindTail())
-        timer->stop();
-        snakeVec = tempSnakeVec;
-        showSnakeAndFood();
+    if (canFindFood()) {
+        tempSnakeVec.clear();
+        tempSnakeVec = snakeVec;
+        tempFoodRow = foodRow;
+        tempFoodCol = foodCol;
+
+        moveSnake(snakeMoveDirection);
+
+        if (canFindTail() == false) {
+            boardLblVec[snakeVec.front().first][snakeVec.front().second]->setStyleSheet("QLabel { border: 1px solid grey; }");
+            boardLblVec[foodRow][foodCol]->setStyleSheet("QLabel { border: 1px solid grey; }");
+            snakeVec = tempSnakeVec;
+            foodRow = tempFoodRow;
+            foodCol = tempFoodCol;
+            showSnakeAndFood();
+
+            if (canFindFood()) {
+                moveSnake(snakeMoveDirection);
+            }
+        }
+    }
+    else {
+        if (canFindTail()) {
+            moveSnake(snakeMoveDirection);
+        }
+        else {
+            qDebug() << "No option";
+        }
+    }
 }

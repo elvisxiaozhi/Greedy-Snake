@@ -31,6 +31,7 @@ private:
     static const int FIND_FOOD;
     static const int FIND_TAIL;
     int foodRow, foodCol;
+    int tempFoodRow, tempFoodCol;
     QVector<QVector<BoardLabel *> > boardLblVec;
     QVector<std::pair<int, int> > snakeVec;
     QVector<std::pair<int, int> > tempSnakeVec;
@@ -51,6 +52,7 @@ private:
     void getAvailPlaces();
     void moveSnake(int);
     void moveSnakeHead(int, QVector<std::pair<int, int> > &);
+    bool canFindFood();
     bool canFindTail();
     void resetVisited();
     QVector<std::pair<int, int> > returnNbrPlaces(int, int);
