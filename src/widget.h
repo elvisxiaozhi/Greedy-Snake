@@ -34,7 +34,7 @@ private:
     int tempFoodRow, tempFoodCol;
     QVector<QVector<BoardLabel *> > boardLblVec;
     QVector<std::pair<int, int> > snakeVec;
-    QVector<std::pair<int, int> > tempSnakeVec;
+    QVector<std::pair<int, int> > virtualSnake;
     QVector<std::pair<int, int> > availPlaces;
     QTimer *timer;
     int snakeMoveDirection;
@@ -56,10 +56,11 @@ private:
     bool canFindTail();
     void resetVisited();
     QVector<std::pair<int, int> > returnNbrPlaces(int, int);
-    void BFS(int, int, int);
+    void BFS(int, int, int, QVector<std::pair<int, int> >);
     QVector<std::pair<int, int> > returnFindFoodPath();
     bool canFindObject(int, int, QVector<std::pair<int, int> >);
-    int getSnakeMoveDirection(int);
+    int getSnakeMoveDirection(int, QVector<std::pair<int, int> >);
+    void moveVirtualSnake();
 
 protected:
     void keyPressEvent(QKeyEvent *);

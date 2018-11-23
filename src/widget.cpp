@@ -26,7 +26,7 @@ Widget::Widget(QWidget *parent) :
     showSnakeAndFood();
 
     timer = new QTimer(this); 
-    timer->start(100);
+//    timer->start(100);
 
     connect(timer, &QTimer::timeout, this, &Widget::whenTimeOut);
 }
@@ -169,7 +169,6 @@ void Widget::moveSnake(int direction)
     //move snake head
     moveSnakeHead(direction, snakeVec);
 
-
     //move snake body
     getAvailPlaces();
     if (hasFoodEaten()) {
@@ -213,7 +212,11 @@ void Widget::moveSnakeHead(int direction, QVector<std::pair<int, int> > &snake)
 
 bool Widget::canFindFood()
 {
-    snakeMoveDirection = getSnakeMoveDirection(FIND_FOOD);
+    snakeMoveDirection = getSnakeMoveDirection(FIND_FOOD, snakeVec);
+
+    virtualSnake.clear();
+    virtualSnake = snakeVec;
+
     if (snakeMoveDirection != NO_DIRECTION)
         return true;
 
@@ -222,8 +225,7 @@ bool Widget::canFindFood()
 
 bool Widget::canFindTail()
 {
-    snakeMoveDirection = getSnakeMoveDirection(FIND_TAIL);
-    if (snakeMoveDirection != NO_DIRECTION)
+    if (getSnakeMoveDirection(FIND_TAIL, virtualSnake) != NO_DIRECTION)
         return true;
 
     return false;
@@ -270,7 +272,7 @@ QVector<std::pair<int, int> > Widget::returnNbrPlaces(int row, int col)
     return res;
 }
 
-void Widget::BFS(int row, int col, int option)
+void Widget::BFS(int row, int col, int option, QVector<std::pair<int, int> > mVec)
 {
     resetVisited();
 
@@ -298,7 +300,7 @@ void Widget::BFS(int row, int col, int option)
                     return;
             }
             if (option == FIND_TAIL) {
-                if (neighbors[i].first == snakeVec[snakeVec.size() - 1].first && neighbors[i].second == snakeVec[snakeVec.size() - 1].second)
+                if (neighbors[i].first == mVec[mVec.size() - 1].first && neighbors[i].second == mVec[mVec.size() - 1].second)
                     return;
             }
         }
@@ -321,6 +323,8 @@ QVector<std::pair<int, int> > Widget::returnFindFoodPath()
         }
     }
 
+    qDebug() << path;
+
     return path;
 }
 
@@ -334,9 +338,9 @@ bool Widget::canFindObject(int row, int col, QVector<std::pair<int, int> > mVec)
     return false;
 }
 
-int Widget::getSnakeMoveDirection(int option)
+int Widget::getSnakeMoveDirection(int option, QVector<std::pair<int, int> > mVec)
 {
-    BFS(snakeVec[0].first, snakeVec[0].second, option);
+    BFS(snakeVec[0].first, snakeVec[0].second, option, mVec);
     QVector<std::pair<int, int> > path;
     res.clear();
     root->rootToLeaf(root, path, res);
@@ -360,6 +364,12 @@ int Widget::getSnakeMoveDirection(int option)
     return NO_DIRECTION;
 }
 
+void Widget::moveVirtualSnake()
+{
+    moveSnakeHead(snakeMoveDirection, virtualSnake);
+    virtualSnake.pop_back();
+}
+
 void Widget::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down || event->key() == Qt::Key_Left || event->key() == Qt::Key_Right) {
@@ -376,39 +386,27 @@ void Widget::keyPressEvent(QKeyEvent *event)
             snakeMoveDirection = RIGHT;
         }
 
+        moveSnake(snakeMoveDirection);
+
     }
-    moveSnake(getSnakeMoveDirection(FIND_FOOD));
+    whenTimeOut();
 }
 
 void Widget::whenTimeOut()
 {
     if (canFindFood()) {
-        tempSnakeVec.clear();
-        tempSnakeVec = snakeVec;
-        tempFoodRow = foodRow;
-        tempFoodCol = foodCol;
-
-        moveSnake(snakeMoveDirection);
-
-        if (canFindTail() == false) {
-            boardLblVec[snakeVec.front().first][snakeVec.front().second]->setStyleSheet("QLabel { border: 1px solid grey; }");
-            boardLblVec[foodRow][foodCol]->setStyleSheet("QLabel { border: 1px solid grey; }");
-            snakeVec = tempSnakeVec;
-            foodRow = tempFoodRow;
-            foodCol = tempFoodCol;
-            showSnakeAndFood();
-
-            if (canFindFood()) {
-                moveSnake(snakeMoveDirection);
-            }
-        }
+        moveVirtualSnake();
+        if (canFindTail())
+            moveSnake(snakeMoveDirection);
     }
     else {
+        virtualSnake.clear();
+        virtualSnake = snakeVec;
         if (canFindTail()) {
-            moveSnake(snakeMoveDirection);
+            moveSnake(getSnakeMoveDirection(FIND_TAIL, snakeVec));
         }
         else {
-            qDebug() << "No option";
+            qDebug() << "No Tail";
         }
     }
 }
