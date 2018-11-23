@@ -312,8 +312,7 @@ void Widget::BFS(int row, int col, int option, QVector<std::pair<int, int> > mVe
 QVector<std::pair<int, int> > Widget::returnFindFoodPath()
 {
     QVector<std::pair<int, int> > path;
-    path.clear();
-
+    res.clear();
     root->rootToLeaf(root, path, res);
 
     for (int i = 0; i < res.size(); ++i) {
@@ -322,8 +321,6 @@ QVector<std::pair<int, int> > Widget::returnFindFoodPath()
             return path;
         }
     }
-
-    qDebug() << path;
 
     return path;
 }
@@ -341,11 +338,8 @@ bool Widget::canFindObject(int row, int col, QVector<std::pair<int, int> > mVec)
 int Widget::getSnakeMoveDirection(int option, QVector<std::pair<int, int> > mVec)
 {
     BFS(snakeVec[0].first, snakeVec[0].second, option, mVec);
-    QVector<std::pair<int, int> > path;
-    res.clear();
-    root->rootToLeaf(root, path, res);
 
-    path = returnFindFoodPath();
+    QVector<std::pair<int, int> > path = returnFindFoodPath();
 
     if (!path.empty()) {
         int row = path[1].first;
