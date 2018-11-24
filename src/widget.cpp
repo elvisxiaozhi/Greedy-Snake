@@ -26,7 +26,7 @@ Widget::Widget(QWidget *parent) :
     showSnakeAndFood();
 
     timer = new QTimer(this); 
-//    timer->start(100);
+    timer->start(100);
 
     connect(timer, &QTimer::timeout, this, &Widget::whenTimeOut);
 }
@@ -317,7 +317,7 @@ QVector<std::pair<int, int> > Widget::returnFindFoodPath()
 
     for (int i = 0; i < res.size(); ++i) {
         if (canFindObject(foodRow, foodCol, res[i])) {
-            path.swap(res[i]);
+            path = res[i];
             return path;
         }
     }
