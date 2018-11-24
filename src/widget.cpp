@@ -337,7 +337,7 @@ bool Widget::canFindObject(int row, int col, QVector<std::pair<int, int> > mVec)
 
 int Widget::getSnakeMoveDirection(int option, QVector<std::pair<int, int> > mVec)
 {
-    BFS(snakeVec[0].first, snakeVec[0].second, option, mVec);
+    BFS(mVec[0].first, mVec[0].second, option, mVec);
 
     QVector<std::pair<int, int> > path = returnFindFoodPath();
 
