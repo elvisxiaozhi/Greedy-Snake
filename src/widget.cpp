@@ -340,18 +340,19 @@ int Widget::getSnakeMoveDirection(int option, QVector<std::pair<int, int> > mVec
     BFS(mVec[0].first, mVec[0].second, option, mVec);
 
     QVector<std::pair<int, int> > path = returnFindFoodPath();
+    qDebug() << path;
 
     if (!path.empty()) {
         int row = path[1].first;
         int col = path[1].second;
 
-        if (row > snakeVec[0].first)
+        if (row > mVec[0].first)
             return DOWN;
-        if (row < snakeVec[0].first)
+        if (row < mVec[0].first)
             return UP;
-        if (col > snakeVec[0].second)
+        if (col > mVec[0].second)
             return RIGHT;
-        if (col < snakeVec[0].second)
+        if (col < mVec[0].second)
             return LEFT;
     }
 
