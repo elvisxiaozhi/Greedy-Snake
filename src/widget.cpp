@@ -231,7 +231,7 @@ bool Widget::canFindTail()
     return false;
 }
 
-void Widget::resetVisited()
+void Widget::resetVisited(int option)
 {
     for (int i = 0; i < boardLblVec.size(); ++i) {
         for (int j = 0; j < boardLblVec[i].size(); ++j) {
@@ -239,8 +239,15 @@ void Widget::resetVisited()
         }
     }
 
-    for (int i = 0; i < snakeVec.size(); ++i) {
-        boardLblVec[snakeVec[i].first][snakeVec[i].second]->visited = true;
+    if (option == FIND_FOOD) {
+        for (int i = 0; i < snakeVec.size(); ++i) {
+            boardLblVec[snakeVec[i].first][snakeVec[i].second]->visited = true;
+        }
+    }
+    else if (option == FIND_TAIL) {
+        for (int i = 0; i < virtualSnake.size() - 1; ++i) {
+            boardLblVec[virtualSnake[i].first][virtualSnake[i].second]->visited = true;
+        }
     }
 }
 
@@ -274,7 +281,7 @@ QVector<std::pair<int, int> > Widget::returnNbrPlaces(int row, int col)
 
 void Widget::BFS(int row, int col, int option, QVector<std::pair<int, int> > mVec)
 {
-    resetVisited();
+    resetVisited(option);
 
     QQueue<Node *> queue;
     root = new Node(row, col);
@@ -309,16 +316,24 @@ void Widget::BFS(int row, int col, int option, QVector<std::pair<int, int> > mVe
     delete curr;
 }
 
-QVector<std::pair<int, int> > Widget::returnFindFoodPath()
+QVector<std::pair<int, int> > Widget::returnFindFoodPath(int option)
 {
     QVector<std::pair<int, int> > path;
     res.clear();
     root->rootToLeaf(root, path, res);
 
     for (int i = 0; i < res.size(); ++i) {
-        if (canFindObject(foodRow, foodCol, res[i])) {
-            path = res[i];
-            return path;
+        if (option == FIND_FOOD) {
+            if (canFindObject(foodRow, foodCol, res[i])) {
+                path = res[i];
+                return path;
+            }
+        }
+        if (option == FIND_TAIL) {
+            if (canFindObject(virtualSnake[virtualSnake.size() - 1].first, virtualSnake[virtualSnake.size() - 1].second, res[i])) {
+                path = res[i];
+                return path;
+            }
         }
     }
 
@@ -339,7 +354,7 @@ int Widget::getSnakeMoveDirection(int option, QVector<std::pair<int, int> > mVec
 {
     BFS(mVec[0].first, mVec[0].second, option, mVec);
 
-    QVector<std::pair<int, int> > path = returnFindFoodPath();
+    QVector<std::pair<int, int> > path = returnFindFoodPath(option);
     qDebug() << path;
 
     if (!path.empty()) {
@@ -389,19 +404,24 @@ void Widget::keyPressEvent(QKeyEvent *event)
 
 void Widget::whenTimeOut()
 {
+//        moveSnake(getSnakeMoveDirection(FIND_FOOD, snakeVec));
     if (canFindFood()) {
         moveVirtualSnake();
-        if (canFindTail())
-            moveSnake(snakeMoveDirection);
-    }
-    else {
-        virtualSnake.clear();
-        virtualSnake = snakeVec;
         if (canFindTail()) {
-            moveSnake(getSnakeMoveDirection(FIND_TAIL, snakeVec));
+            moveSnake(snakeMoveDirection);
         }
         else {
-            qDebug() << "No Tail";
+            qDebug() << "Can not";
         }
     }
+//    else {
+//        virtualSnake.clear();
+//        virtualSnake = snakeVec;
+//        if (canFindTail()) {
+//            moveSnake(getSnakeMoveDirection(FIND_TAIL, snakeVec));
+//        }
+//        else {
+//            qDebug() << "No Tail";
+//        }
+//    }
 }
