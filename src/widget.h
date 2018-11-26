@@ -57,9 +57,10 @@ private:
     void resetVisited(int);
     QVector<std::pair<int, int> > returnNbrPlaces(int, int);
     void BFS(int, int, int, QVector<std::pair<int, int> >);
-    QVector<std::pair<int, int> > returnFindFoodPath(int);
+    QVector<std::pair<int, int> > returnPath(int);
     bool canFindObject(int, int, QVector<std::pair<int, int> >);
     int getSnakeMoveDirection(int, QVector<std::pair<int, int> >);
+    int getFarthestDirectionToFood();
     void moveVirtualSnake();
 
 protected:
