@@ -396,6 +396,8 @@ QVector<int> Widget::returnMoveablePlaces()
     if (isPlaceAvaiable(snakeVec.front().first, snakeVec.front().second + 1))
         res.push_back(RIGHT);
 
+    qDebug() << "Moveable: " << res;
+
     QVector<int> tempVec(res);
     for (int i = 0; i < tempVec.size(); ++i) {
         moveVirtualSnake(tempVec[i]);
@@ -469,8 +471,6 @@ void Widget::whenTimeOut()
     }
 
     if (canFindFood() == false || canFindTail() == false) {
-        qDebug() << "Crushing";
-//        timer->stop();
         QVector<int> moveablePlaces = returnMoveablePlaces();
         int i = rand() % returnMoveablePlaces().size();
         qDebug() << moveablePlaces << moveablePlaces[i];
