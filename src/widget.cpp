@@ -378,6 +378,67 @@ void Widget::moveVirtualSnake(int direction)
     virtualSnake.pop_back();
 }
 
+QVector<int> Widget::returnMoveablePlaces()
+{
+    QVector<int> res;
+
+    if (isPlaceAvaiable(snakeVec.front().first - 1, snakeVec.front().second))
+        res.push_back(UP);
+    if (isPlaceAvaiable(snakeVec.front().first + 1, snakeVec.front().second))
+        res.push_back(DOWN);
+    if (isPlaceAvaiable(snakeVec.front().first, snakeVec.front().second - 1))
+        res.push_back(LEFT);
+    if (isPlaceAvaiable(snakeVec.front().first, snakeVec.front().second + 1))
+        res.push_back(RIGHT);
+
+    QVector<int> tempVec(res);
+    for (int i = 0; i < tempVec.size(); ++i) {
+        moveVirtualSnake(tempVec[i]);
+        if (canFindTail())
+            res.push_back(tempVec[i]);
+    }
+
+//    vector<int> inter;
+//    set_intersection(v1.begin(), v1.end(),
+//                     v2.begin(), v2.end(),
+//                     back_inserter(inter));
+//    // inter is "2 4 6"
+
+//    v1.erase(set_difference(v1.begin(), v1.end(),
+//                            inter.begin(), inter.end(),
+//                            v1.begin())
+//             v1.end());
+
+
+    QVector<int> inter;
+    std::set_intersection(res.begin(), res.end(),
+                          tempVec.begin(), tempVec.end(),
+                          std::back_inserter(inter));
+
+    res.erase(std::set_difference(res.begin(), res.end(),
+                                  inter.begin(), inter.end(),
+                                  res.begin()),
+              res.end());
+
+    return res;
+}
+
+bool Widget::isPlaceAvaiable(int row, int col)
+{
+    QVector<std::pair<int, int> > tempSnake(snakeVec);
+    tempSnake.pop_back();
+
+    if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
+        auto it = std::make_pair(row, col);
+        if (std::find(tempSnake.begin(), tempSnake.end(), it) != tempSnake.end())
+            return false;
+        else
+            return true;
+    }
+
+    return false;
+}
+
 void Widget::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down || event->key() == Qt::Key_Left || event->key() == Qt::Key_Right) {
@@ -407,23 +468,29 @@ void Widget::whenTimeOut()
         if (canFindTail()) {
             moveSnake(snakeMoveDirection);
         }
-        else {
-            virtualSnake.clear();
-            virtualSnake = snakeVec;
-            if (canFindTail()) {
-                moveSnake(snakeMoveDirection);
-            }
-            else {
-                qDebug() << "No tail";
-                timer->stop();
-            }
-        }
+//        else {
+//            virtualSnake.clear();
+//            virtualSnake = snakeVec;
+//            if (canFindTail()) {
+//                moveSnake(snakeMoveDirection);
+//            }
+//            else {
+//                qDebug() << "No tail";
+//                timer->stop();
+//            }
+//        }
     }
-    else if (canFindTail()) {
-        moveSnake(getSnakeMoveDirection(FIND_TAIL, virtualSnake));
-    }
-    else {
-        qDebug() << "No Food, no tail";
+
+    if (canFindFood() == false || canFindTail() == false) {
         timer->stop();
+
+        qDebug() << returnMoveablePlaces();
     }
+//    else if (canFindTail()) {
+//        moveSnake(getSnakeMoveDirection(FIND_TAIL, virtualSnake));
+//    }
+//    else {
+//        qDebug() << "No Food, no tail";
+//        timer->stop();
+//    }
 }

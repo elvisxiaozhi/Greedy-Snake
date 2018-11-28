@@ -61,6 +61,8 @@ private:
     bool canFindObject(int, int, QVector<std::pair<int, int> >);
     int getSnakeMoveDirection(int, QVector<std::pair<int, int> >);
     void moveVirtualSnake(int);
+    QVector<int> returnMoveablePlaces();
+    bool isPlaceAvaiable(int, int);
 
 protected:
     void keyPressEvent(QKeyEvent *);
