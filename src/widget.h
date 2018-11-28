@@ -60,8 +60,7 @@ private:
     QVector<std::pair<int, int> > returnPath(int);
     bool canFindObject(int, int, QVector<std::pair<int, int> >);
     int getSnakeMoveDirection(int, QVector<std::pair<int, int> >);
-    int getFarthestDirectionToFood();
-    void moveVirtualSnake();
+    void moveVirtualSnake(int);
 
 protected:
     void keyPressEvent(QKeyEvent *);
