@@ -35,6 +35,18 @@ struct Node
         return temp;
     }
 
+    int returnTreeSize(Node* node) {
+        if (node == nullptr)
+            return 0;
+        else {
+            int s = 0;
+            for (int i = 0; i < node->child.size(); ++i) {
+                s += returnTreeSize(node->child[i]);
+            }
+
+            return s + 1;
+        }
+    }
 
     void deleteTree(Node *node) {
         if (node == nullptr)

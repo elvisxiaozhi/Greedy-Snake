@@ -351,7 +351,12 @@ int Widget::getSnakeMoveDirection(int option, QVector<std::pair<int, int> > mVec
     BFS(mVec[0].first, mVec[0].second, option, mVec);
 
     QVector<std::pair<int, int> > path = returnPath(option);
-    qDebug() << "path" << path;
+    if (option == FIND_FOOD) {
+        qDebug() << "FOOD PATH " << path;
+    }
+    else {
+        qDebug() << "TAIL PATH " << path;
+    }
 
     if (!path.empty()) {
         int row = path[1].first;
@@ -397,18 +402,6 @@ QVector<int> Widget::returnMoveablePlaces()
         if (canFindTail())
             res.push_back(tempVec[i]);
     }
-
-//    vector<int> inter;
-//    set_intersection(v1.begin(), v1.end(),
-//                     v2.begin(), v2.end(),
-//                     back_inserter(inter));
-//    // inter is "2 4 6"
-
-//    v1.erase(set_difference(v1.begin(), v1.end(),
-//                            inter.begin(), inter.end(),
-//                            v1.begin())
-//             v1.end());
-
 
     QVector<int> inter;
     std::set_intersection(res.begin(), res.end(),
@@ -463,34 +456,24 @@ void Widget::keyPressEvent(QKeyEvent *event)
 
 void Widget::whenTimeOut()
 {
+    if (snakeVec.size() == ROWS * COLS - 1) {
+        qDebug() << "Won";
+        return;
+    }
+
     if (canFindFood()) {
         moveVirtualSnake(snakeMoveDirection);
         if (canFindTail()) {
             moveSnake(snakeMoveDirection);
         }
-//        else {
-//            virtualSnake.clear();
-//            virtualSnake = snakeVec;
-//            if (canFindTail()) {
-//                moveSnake(snakeMoveDirection);
-//            }
-//            else {
-//                qDebug() << "No tail";
-//                timer->stop();
-//            }
-//        }
     }
 
     if (canFindFood() == false || canFindTail() == false) {
-        timer->stop();
-
-        qDebug() << returnMoveablePlaces();
-    }
-//    else if (canFindTail()) {
-//        moveSnake(getSnakeMoveDirection(FIND_TAIL, virtualSnake));
-//    }
-//    else {
-//        qDebug() << "No Food, no tail";
+        qDebug() << "Crushing";
 //        timer->stop();
-//    }
+        QVector<int> moveablePlaces = returnMoveablePlaces();
+        int i = rand() % returnMoveablePlaces().size();
+        qDebug() << moveablePlaces << moveablePlaces[i];
+        moveSnake(moveablePlaces[i]);
+    }
 }
