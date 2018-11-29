@@ -73,6 +73,12 @@ void Widget::createSnake()
 
 void Widget::showSnakeAndFood()
 {
+    for (int i = 0; i < ROWS; ++i) {
+        for (int j = 0; j < COLS; ++j) {
+            boardLblVec[i][j]->setStyleSheet("QLabel { border: 1px solid grey; }");
+        }
+    }
+
     for(int i = 0; i < snakeVec.size(); ++i) {
         if(i == 0) {
             boardLblVec[snakeVec[i].first][snakeVec[i].second]->setStyleSheet("QLabel { background: red; }");
@@ -156,7 +162,7 @@ void Widget::getAvailPlaces()
 
 void Widget::moveSnake(int direction)
 {
-    removeOldSnake();
+//    removeOldSnake();
 
     //move snake head
     moveSnakeHead(direction, snakeVec);
