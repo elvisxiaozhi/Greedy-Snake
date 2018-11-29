@@ -90,7 +90,7 @@ void Widget::showSnakeAndFood()
 
 void Widget::generateFood()
 {
-    if (availPlaces.size() > 0) {
+    if (!availPlaces.empty()) {
         int i = rand() % availPlaces.size();
         foodRow = availPlaces[i].first;
         foodCol = availPlaces[i].second;
@@ -114,6 +114,7 @@ void Widget::removeOldSnake()
 
 void Widget::gameOver()
 {
+    timer->stop();
     qDebug() << "Lost";
 }
 
@@ -126,15 +127,6 @@ bool Widget::hasLost()
     auto p = std::make_pair(snakeVec[0].first, snakeVec[0].second);
 
     if (std::find(snakeVec.begin() + 1, snakeVec.end(), p) != snakeVec.end()) {
-        return true;
-    }
-
-    return false;
-}
-
-bool Widget::hasFoodEaten()
-{
-    if (snakeVec[0].first == foodRow && snakeVec[0].second == foodCol) {
         return true;
     }
 
@@ -170,42 +162,16 @@ void Widget::moveSnake(int direction)
     moveSnakeHead(direction, snakeVec);
 
     //move snake body
-    getAvailPlaces();
-    if (hasFoodEaten()) {
+    if (snakeVec.front().first == foodRow && snakeVec.front().second == foodCol) {
         generateFood();
-
-        if (hasLost()) {
-            timer->stop();
-            qDebug() << "Ate food and lost";
-            showSnakeAndFood();
-            return;
-        }
     }
     else {
         snakeVec.pop_back();
     }
 
-    if (hasLost()) {
-//        if (snakeVec.front().first < 0 || snakeVec.front().first >= ROWS || snakeVec.front().second < 0 || snakeVec.front().second >= COLS) {
-//            snakeVec.pop_front();
-//            showSnakeAndFood();
-//            boardLblVec[snakeVec.front().first][snakeVec.front().second]->setStyleSheet("QLabel { background: black; }");
-//        }
-//        else if (snakeVec.front().first == snakeVec.last().first && snakeVec.front().second == snakeVec.last().second) {
-//            //move snake body
-//            getAvailPlaces();
-//            if (hasFoodEaten()) {
-//                generateFood();
-//            }
-//            else {
-//                snakeVec.pop_back();
-//            }
+    getAvailPlaces();
 
-//            showSnakeAndFood();
-//        }
-//        else {
-//            showSnakeAndFood();
-//        }
+    if (hasLost()) {
         gameOver();
     }
 
@@ -402,7 +368,8 @@ void Widget::moveVirtualSnake(int direction)
     virtualSnake.clear();
     virtualSnake = snakeVec;
     moveSnakeHead(direction, virtualSnake);
-    virtualSnake.pop_back();
+    if (virtualSnake.front().first != foodRow && virtualSnake.front().second != foodCol)
+        virtualSnake.pop_back(); //bug here
 }
 
 QVector<int> Widget::returnMoveablePlaces()
@@ -461,11 +428,6 @@ void Widget::keyPressEvent(QKeyEvent *event)
 
 void Widget::whenTimeOut()
 {
-    if (snakeVec.size() == ROWS * COLS - 1) {
-        qDebug() << "Won";
-        return;
-    }
-
     if (canFindFood()) {
         moveVirtualSnake(snakeMoveDirection);
         if (canFindTail()) {

@@ -48,7 +48,6 @@ private:
     void removeOldSnake();
     void gameOver();
     bool hasLost();
-    bool hasFoodEaten();
     void getAvailPlaces();
     void moveSnake(int);
     void moveSnakeHead(int, QVector<std::pair<int, int> > &);
