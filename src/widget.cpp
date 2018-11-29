@@ -103,21 +103,6 @@ void Widget::generateFood()
     }
 }
 
-void Widget::removeOldSnake()
-{
-    for (int i = 0; i < ROWS; ++i) {
-        for (int j = 0; j < COLS; ++j) {
-            if (i == foodRow && j == foodCol) {
-                continue;
-            }
-            else {
-                boardLblVec[i][j]->setText("");
-                boardLblVec[i][j]->setStyleSheet("QLabel { border: 1px solid grey; }");
-            }
-        }
-    }
-}
-
 void Widget::gameOver()
 {
     timer->stop();
@@ -162,8 +147,6 @@ void Widget::getAvailPlaces()
 
 void Widget::moveSnake(int direction)
 {
-//    removeOldSnake();
-
     //move snake head
     moveSnakeHead(direction, snakeVec);
 
@@ -178,7 +161,12 @@ void Widget::moveSnake(int direction)
     getAvailPlaces();
 
     if (hasLost()) {
+        snakeVec.pop_front();
+        showSnakeAndFood();
+        boardLblVec[snakeVec.front().first][snakeVec.front().second]->setStyleSheet("QLabel { background: black; }");
+
         gameOver();
+        return;
     }
 
     showSnakeAndFood();
@@ -374,7 +362,7 @@ void Widget::moveVirtualSnake(int direction)
     virtualSnake.clear();
     virtualSnake = snakeVec;
     moveSnakeHead(direction, virtualSnake);
-    if (virtualSnake.front().first != foodRow && virtualSnake.front().second != foodCol)
+//    if (virtualSnake.front().first != foodRow && virtualSnake.front().second != foodCol)
         virtualSnake.pop_back(); //bug here
 }
 

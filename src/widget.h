@@ -45,7 +45,6 @@ private:
     void createSnake();
     void showSnakeAndFood();
     void generateFood();
-    void removeOldSnake();
     void gameOver();
     bool hasLost();
     void getAvailPlaces();
