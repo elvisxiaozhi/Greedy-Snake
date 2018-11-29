@@ -26,7 +26,7 @@ Widget::Widget(QWidget *parent) :
     showSnakeAndFood();
 
     timer = new QTimer(this); 
-//    timer->start(100);
+    timer->start(100);
 
     connect(timer, &QTimer::timeout, this, &Widget::whenTimeOut);
 }
@@ -169,40 +169,44 @@ void Widget::moveSnake(int direction)
     //move snake head
     moveSnakeHead(direction, snakeVec);
 
-    //check if the game has lost after moving the head
-    if (hasLost()) {
-        if (snakeVec.front().first < 0 || snakeVec.front().first >= ROWS || snakeVec.front().second < 0 || snakeVec.front().second >= COLS) {
-            snakeVec.pop_front();
-            showSnakeAndFood();
-            boardLblVec[snakeVec.front().first][snakeVec.front().second]->setStyleSheet("QLabel { background: black; }");
-        }
-        else if (snakeVec.front().first == snakeVec.last().first && snakeVec.front().second == snakeVec.last().second) {
-            //move snake body
-            getAvailPlaces();
-            if (hasFoodEaten()) {
-                generateFood();
-            }
-            else {
-                snakeVec.pop_back();
-            }
-
-            showSnakeAndFood();
-        }
-        else {
-            showSnakeAndFood();
-        }
-        gameOver();
-
-        return;
-    }
-
     //move snake body
     getAvailPlaces();
     if (hasFoodEaten()) {
         generateFood();
+
+        if (hasLost()) {
+            timer->stop();
+            qDebug() << "Ate food and lost";
+            showSnakeAndFood();
+            return;
+        }
     }
     else {
         snakeVec.pop_back();
+    }
+
+    if (hasLost()) {
+//        if (snakeVec.front().first < 0 || snakeVec.front().first >= ROWS || snakeVec.front().second < 0 || snakeVec.front().second >= COLS) {
+//            snakeVec.pop_front();
+//            showSnakeAndFood();
+//            boardLblVec[snakeVec.front().first][snakeVec.front().second]->setStyleSheet("QLabel { background: black; }");
+//        }
+//        else if (snakeVec.front().first == snakeVec.last().first && snakeVec.front().second == snakeVec.last().second) {
+//            //move snake body
+//            getAvailPlaces();
+//            if (hasFoodEaten()) {
+//                generateFood();
+//            }
+//            else {
+//                snakeVec.pop_back();
+//            }
+
+//            showSnakeAndFood();
+//        }
+//        else {
+//            showSnakeAndFood();
+//        }
+        gameOver();
     }
 
     showSnakeAndFood();
