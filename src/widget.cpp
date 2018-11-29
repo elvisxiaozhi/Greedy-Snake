@@ -111,11 +111,11 @@ void Widget::gameOver()
 
 bool Widget::hasLost()
 {
-    if (snakeVec[0].first < 0 || snakeVec[0].first >= ROWS || snakeVec[0].second < 0 || snakeVec[0].second >= COLS) {
+    if (snakeVec.front().first < 0 || snakeVec.front().first >= ROWS || snakeVec.front().second < 0 || snakeVec.front().second >= COLS) {
         return true;
     }
 
-    auto p = std::make_pair(snakeVec[0].first, snakeVec[0].second);
+    auto p = std::make_pair(snakeVec.front().first, snakeVec.front().second);
 
     if (std::find(snakeVec.begin() + 1, snakeVec.end(), p) != snakeVec.end()) {
         return true;
@@ -176,16 +176,16 @@ void Widget::moveSnakeHead(int direction, QVector<std::pair<int, int> > &snake)
 {
     switch (direction) {
     case UP:
-        snake.push_front(std::make_pair(snake[0].first - 1, snake[0].second));
+        snake.push_front(std::make_pair(snake.front().first - 1, snake.front().second));
         break;
     case DOWN:
-        snake.push_front(std::make_pair(snake[0].first + 1, snake[0].second));
+        snake.push_front(std::make_pair(snake.front().first + 1, snake.front().second));
         break;
     case LEFT:
-        snake.push_front(std::make_pair(snake[0].first, snake[0].second - 1));
+        snake.push_front(std::make_pair(snake.front().first, snake.front().second - 1));
         break;
     case RIGHT:
-        snake.push_front(std::make_pair(snake[0].first, snake[0].second + 1));
+        snake.push_front(std::make_pair(snake.front().first, snake.front().second + 1));
         break;
     default:
         break;
@@ -330,7 +330,7 @@ bool Widget::canFindObject(int row, int col, QVector<std::pair<int, int> > mVec)
 
 int Widget::getSnakeMoveDirection(int option, QVector<std::pair<int, int> > mVec)
 {
-    BFS(mVec[0].first, mVec[0].second, option, mVec);
+    BFS(mVec.front().first, mVec.front().second, option, mVec);
 
     QVector<std::pair<int, int> > path = returnPath(option);
     if (option == FIND_FOOD) {
@@ -344,13 +344,13 @@ int Widget::getSnakeMoveDirection(int option, QVector<std::pair<int, int> > mVec
         int row = path[1].first;
         int col = path[1].second;
 
-        if (row > mVec[0].first)
+        if (row > mVec.front().first)
             return DOWN;
-        if (row < mVec[0].first)
+        if (row < mVec.front().first)
             return UP;
-        if (col > mVec[0].second)
+        if (col > mVec.front().second)
             return RIGHT;
-        if (col < mVec[0].second)
+        if (col < mVec.front().second)
             return LEFT;
     }
 
