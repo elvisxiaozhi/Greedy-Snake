@@ -57,10 +57,11 @@ private:
     void BFS(int, int, int, QVector<std::pair<int, int> >);
     QVector<std::pair<int, int> > returnPath(int);
     bool canFindObject(int, int, QVector<std::pair<int, int> >);
-    int getSnakeMoveDirection(int, QVector<std::pair<int, int> >);
     void moveVirtualSnake(int);
+    void moveVirtualSnake(QVector<std::pair<int, int> >);
     QVector<int> returnMoveablePlaces();
     bool isPlaceAvaiable(int, int);
+    int returnSnakeMoveDirection(QVector<std::pair<int, int> >);
 
 protected:
     void keyPressEvent(QKeyEvent *);
