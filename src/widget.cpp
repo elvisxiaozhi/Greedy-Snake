@@ -152,13 +152,13 @@ void Widget::moveSnake(int direction)
 
     //move snake body
     if (snakeVec.front().first == foodRow && snakeVec.front().second == foodCol) {
+        getAvailPlaces();
         generateFood();
     }
     else {
         snakeVec.pop_back();
     }
 
-    getAvailPlaces();
 
     if (hasLost()) {
         snakeVec.pop_front();
@@ -417,7 +417,8 @@ void Widget::keyPressEvent(QKeyEvent *event)
         moveSnake(snakeMoveDirection);
 
     }
-//    timer->start(100);
+
+    timer->start(100);
 }
 
 void Widget::whenTimeOut()
@@ -440,16 +441,19 @@ void Widget::whenTimeOut()
                 findTailPath.push_back(moveablePlaces[i]);
         }
 
+
         int i = 0;
         if (findTailPath.empty()) {
             i = rand() % moveablePlaces.size();
-            moveSnake(moveablePlaces[i]);
+//            moveSnake(moveablePlaces[i]);
         }
         else {
             i = rand() % findTailPath.size();
-            moveSnake(findTailPath[i]);
+//            moveSnake(findTailPath[i]);
         }
 
-        qDebug() << "moveable: " << moveablePlaces << "tail: " << findTailPath;
+        qDebug() << "moveable: " << moveablePlaces << "tail: " << findTailPath << "random" << i;
+        timer->stop();
+
     }
 }
