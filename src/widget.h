@@ -61,6 +61,7 @@ private:
     void moveVirtualSnake(QVector<std::pair<int, int> >);
     QVector<int> returnMoveablePlaces();
     bool isPlaceAvaiable(int, int);
+    bool isFoodAround();
     int returnSnakeMoveDirection(QVector<std::pair<int, int> >);
 
 protected:

@@ -27,7 +27,7 @@ Widget::Widget(QWidget *parent) :
     showSnakeAndFood();
 
     timer = new QTimer(this); 
-    timer->start(15);
+    timer->start(100);
 
     connect(timer, &QTimer::timeout, this, &Widget::whenTimeOut);
 }
@@ -214,8 +214,6 @@ bool Widget::canFindTail()
     BFS(virtualSnake.front().first, virtualSnake.front().second, FIND_TAIL, virtualSnake);
     QVector<std::pair<int, int> > path = returnPath(FIND_TAIL);
 
-    qDebug() << "Tail path: " << path;
-
     if (!path.empty())
         return true;
 
@@ -354,16 +352,12 @@ void Widget::moveVirtualSnake(QVector<std::pair<int, int> > path)
     virtualSnake.clear();
     virtualSnake = snakeVec;
 
-    qDebug() << "before virtual snake: " << virtualSnake;
-
     //path[0] is snake head, virtual snake already has snake head
     int popTimes = -1;
     for (int i = 1; i < path.size(); ++i) {
         virtualSnake.push_front(std::make_pair(path[i].first, path[i].second));
         ++popTimes;
     }
-
-    qDebug() << "vitual path: " << path << "times: " << popTimes;
 
     //because virtual snake has already ate food, the length grow one
     for (int i = 0; i < popTimes; ++i) {
@@ -399,6 +393,20 @@ bool Widget::isPlaceAvaiable(int row, int col)
         else
             return true;
     }
+
+    return false;
+}
+
+bool Widget::isFoodAround()
+{
+    if (snakeVec.front().first - 1 == foodRow && snakeVec.front().second == foodCol)
+        return true;
+    else if (snakeVec.front().first + 1 == foodRow && snakeVec.front().second == foodCol)
+        return true;
+    else if (snakeVec.front().first == foodRow && snakeVec.front().second - 1 == foodCol)
+        return true;
+    else if (snakeVec.front().first == foodRow && snakeVec.front().second + 1 == foodCol)
+        return true;
 
     return false;
 }
@@ -439,39 +447,34 @@ void Widget::keyPressEvent(QKeyEvent *event)
         moveSnake(snakeMoveDirection);
 
     }
-
-//    if (event->key() == Qt::Key_Space)
-//        whenTimeOut();
-
-    timer->start(100);
 }
 
 void Widget::whenTimeOut()
 {
     if (canFindFood()) {
-        qDebug() << "Virtual snake: " << virtualSnake;
         if (canFindTail())
             moveSnake(snakeMoveDirection);
 
         virtualSnake.clear();
         virtualSnake = snakeVec;
-        qDebug() << "Done 1";
     }
     if (canFindFood() == false || canFindTail() == false) {
+        if (availPlaces.size() == 1 && isFoodAround() == true) {
+            snakeVec.push_front(std::make_pair(foodRow, foodCol));
+            showSnakeAndFood();
+            boardLblVec[foodRow][foodCol]->setStyleSheet("QLabel { background: red; }");
+            gameOver();
+            return;
+        }
+
         QVector<int> moveablePlaces = returnMoveablePlaces();
         QVector<int> findTailPath;
-
-        qDebug() << "Done 2";
 
         for (int i = 0; i < moveablePlaces.size(); ++i) {
             moveVirtualSnake(moveablePlaces[i]);
             if (canFindTail())
                 findTailPath.push_back(moveablePlaces[i]);
         }
-
-        qDebug() << "Done 3";
-
-        qDebug() << "moveable: " << moveablePlaces << "tail: " << findTailPath;
 
         int i = 0;
         if (findTailPath.empty()) {
@@ -482,10 +485,5 @@ void Widget::whenTimeOut()
             i = rand() % findTailPath.size();
             moveSnake(findTailPath[i]);
         }
-
-        qDebug() << "Done 4";
-        qDebug() << "moveable: " << moveablePlaces << "tail: " << findTailPath << "random" << i;
-//        timer->stop();
-
     }
 }
