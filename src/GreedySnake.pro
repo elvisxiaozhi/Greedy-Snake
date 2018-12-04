@@ -35,3 +35,5 @@ HEADERS += \
 
 FORMS += \
         widget.ui
+
+RC_ICONS += icon/snake.ico

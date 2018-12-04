@@ -3,9 +3,10 @@
 #include <QKeyEvent>
 #include <QDebug>
 #include <QQueue>
+#include <QStack>
 
-const int Widget::ROWS = 10;
-const int Widget::COLS = 10;
+const int Widget::ROWS = 12;
+const int Widget::COLS = 12;
 const int Widget::NO_DIRECTION = -1;
 const int Widget::UP = 0;
 const int Widget::DOWN = 1;
@@ -19,7 +20,7 @@ Widget::Widget(QWidget *parent) :
     ui(new Ui::Widget)
 {
     ui->setupUi(this);
-    setWindowTitle("Greedy Snake");
+    setWindowTitle("Greedy Snake AI");
 
     setBoardLayout();
     createSnake();
@@ -27,7 +28,7 @@ Widget::Widget(QWidget *parent) :
     showSnakeAndFood();
 
     timer = new QTimer(this); 
-    timer->start(100);
+    timer->start(50);
 
     connect(timer, &QTimer::timeout, this, &Widget::whenTimeOut);
 }
@@ -39,6 +40,7 @@ Widget::~Widget()
 
 void Widget::setBoardLayout()
 {
+    ui->gridLayout->setSpacing(1);
     for(int i = 0; i < ROWS; ++i) {
         QVector<BoardLabel *> colVec;
         for(int j = 0; j < COLS; ++j) {
@@ -298,6 +300,36 @@ void Widget::BFS(int row, int col, int option, QVector<std::pair<int, int> > mVe
                 if (neighbors[i].first == mVec[mVec.size() - 1].first && neighbors[i].second == mVec[mVec.size() - 1].second)
                     return;
             }
+        }
+    }
+
+    delete curr;
+}
+
+void Widget::DFS(int row, int col)
+{
+    resetVisited(FIND_TAIL);
+
+    QStack<Node *> stack;
+    root = new Node(row, col);
+    stack.push(root);
+
+    Node *curr = nullptr;
+
+    while (!stack.empty()) {
+        row = stack.top()->row;
+        col = stack.top()->col;
+        curr = stack.top();
+        stack.pop();
+
+        boardLblVec[row][col]->visited = true;
+
+        if (row == virtualSnake.back().first && col == virtualSnake.back().second)
+            return;
+
+        QVector<std::pair<int, int> > neighbors = returnNbrPlaces(row, col);
+        for (int i = 0; i < neighbors.size(); ++i) {
+            stack.push(root->makeChild(curr, neighbors[i].first, neighbors[i].second));
         }
     }
 
