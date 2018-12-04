@@ -52,6 +52,7 @@ private:
     void moveSnakeHead(int, QVector<std::pair<int, int> > &);
     bool canFindFood();
     bool canFindTail();
+
     void resetVisited(int);
     QVector<std::pair<int, int> > returnNbrPlaces(int, int);
     void BFS(int, int, int, QVector<std::pair<int, int> >);
@@ -70,6 +71,7 @@ protected:
 
 private slots:
     void whenTimeOut();
+    void whenTimeOut2();
 };
 
 #endif // WIDGET_H
