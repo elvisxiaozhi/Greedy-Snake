@@ -52,16 +52,18 @@ private:
     void moveSnakeHead(int, QVector<std::pair<int, int> > &);
     bool canFindFood();
     bool canFindTail();
-
+    bool canFindTail2();
     void resetVisited(int);
     QVector<std::pair<int, int> > returnNbrPlaces(int, int);
     void BFS(int, int, int, QVector<std::pair<int, int> >);
-    void DFS(int, int);
+    void DFS(int, int, int);
     QVector<std::pair<int, int> > returnPath(int);
     bool canFindObject(int, int, QVector<std::pair<int, int> >);
     void moveVirtualSnake(int);
     void moveVirtualSnake(QVector<std::pair<int, int> >);
     QVector<int> returnMoveablePlaces();
+    int returnFarthestDirectionToFood();
+    QVector<int> returnPreferredDirections();
     bool isPlaceAvaiable(int, int);
     bool isFoodAround();
     int returnSnakeMoveDirection(QVector<std::pair<int, int> >);

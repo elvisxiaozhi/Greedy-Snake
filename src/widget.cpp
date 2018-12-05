@@ -5,7 +5,7 @@
 #include <QQueue>
 #include <QStack>
 
-const int Widget::ROWS = 12;
+const int Widget::ROWS = 12; //12
 const int Widget::COLS = 12;
 const int Widget::NO_DIRECTION = -1;
 const int Widget::UP = 0;
@@ -222,6 +222,17 @@ bool Widget::canFindTail()
     return false;
 }
 
+bool Widget::canFindTail2()
+{
+    DFS(virtualSnake.front().first, virtualSnake.front().second, FIND_TAIL);
+    QVector<std::pair<int, int> > path = returnPath(FIND_TAIL);
+
+    if (!path.empty())
+        return true;
+
+    return false;
+}
+
 void Widget::resetVisited(int option)
 {
     for (int i = 0; i < boardLblVec.size(); ++i) {
@@ -306,7 +317,7 @@ void Widget::BFS(int row, int col, int option, QVector<std::pair<int, int> > mVe
     delete curr;
 }
 
-void Widget::DFS(int row, int col)
+void Widget::DFS(int row, int col, int option)
 {
     resetVisited(FIND_TAIL);
 
@@ -324,8 +335,14 @@ void Widget::DFS(int row, int col)
 
         boardLblVec[row][col]->visited = true;
 
-//        if (row == virtualSnake.back().first && col == virtualSnake.back().second)
-//            return;
+        if (option == FIND_FOOD) {
+            if (row == foodRow && col == foodCol)
+                return;
+        }
+        else if (option == FIND_TAIL) {
+            if (row == virtualSnake.back().first && col == virtualSnake.back().second)
+                return;
+        }
 
         QVector<std::pair<int, int> > neighbors = returnNbrPlaces(row, col);
         for (int i = 0; i < neighbors.size(); ++i) {
@@ -403,33 +420,101 @@ QVector<int> Widget::returnMoveablePlaces()
 
     if (isPlaceAvaiable(snakeVec.front().first - 1, snakeVec.front().second)) {
         moveVirtualSnake(UP);
-        if (canFindTail()) {
+        if (canFindTail2()) {
             res.push_back(UP);
         }
     }
 
     if (isPlaceAvaiable(snakeVec.front().first + 1, snakeVec.front().second)) {
         moveVirtualSnake(DOWN);
-        if (canFindTail()) {
+        if (canFindTail2()) {
             res.push_back(DOWN);
         }
     }
 
     if (isPlaceAvaiable(snakeVec.front().first, snakeVec.front().second - 1)) {
         moveVirtualSnake(LEFT);
-        if (canFindTail()) {
+        if (canFindTail2()) {
             res.push_back(LEFT);
         }
     }
 
     if (isPlaceAvaiable(snakeVec.front().first, snakeVec.front().second + 1)) {
         moveVirtualSnake(RIGHT);
-        if (canFindTail()) {
+        if (canFindTail2()) {
             res.push_back(RIGHT);
         }
     }
 
     return res;
+}
+
+int Widget::returnFarthestDirectionToFood()
+{
+    QVector<int> moveablePlaces = returnMoveablePlaces();
+    QVector<int> preferred = returnPreferredDirections();
+
+    std::sort(moveablePlaces.begin(), moveablePlaces.end());
+    std::sort(preferred.begin(), preferred.end());
+
+    qDebug() <<"P" <<  preferred;
+
+    QVector<int> common;
+    std::set_intersection(moveablePlaces.begin(), moveablePlaces.end(),
+                          preferred.begin(), preferred.end(),
+                          std::back_inserter(common));
+
+    if (common.empty()) {
+        common.clear();
+        common = moveablePlaces;
+    }
+
+    int res;
+    if (common.size() == 1) {
+        return common.front();
+    }
+    else {
+//        for (int i = 0; i < common.size(); ++i) {
+
+//        }
+        res = rand() % common.size();
+        res = common[res];
+    }
+
+    qDebug() << common;
+
+    return res;
+}
+
+QVector<int> Widget::returnPreferredDirections()
+{
+    QVector<int> directions;
+
+    if (foodRow == snakeVec.front().first) {
+        if (snakeVec.front().second > foodCol)
+            directions.push_back(RIGHT);
+        else if (snakeVec.front().second < foodCol)
+            directions.push_back(LEFT);
+    }
+    else if (foodCol == snakeVec.front().second) {
+        if (snakeVec.front().first > foodRow)
+            directions.push_back(DOWN);
+        else if (snakeVec.front().first < foodRow)
+            directions.push_back(UP);
+    }
+    else {
+        if (snakeVec.front().first > foodRow)
+            directions.push_back(DOWN);
+        else if (snakeVec.front().first < foodRow)
+            directions.push_back(UP);
+
+        if (snakeVec.front().second > foodCol)
+            directions.push_back(RIGHT);
+        else if (snakeVec.front().second < foodCol)
+            directions.push_back(LEFT);
+    }
+
+    return directions;
 }
 
 bool Widget::isPlaceAvaiable(int row, int col)
@@ -552,9 +637,10 @@ void Widget::whenTimeOut2()
         virtualSnake = snakeVec;
     }
     if (canFindFood() == false || canFindTail() == false) {
-        QVector<int> moveablePlaces = returnMoveablePlaces();
-        int i = rand() % moveablePlaces.size();
-        moveSnake(moveablePlaces[i]);
-//        qDebug() << moveablePlaces;
+//        QVector<int> moveablePlaces = returnMoveablePlaces();
+//        qDebug() << "moveablePlaces" << moveablePlaces;
+//        qDebug() << returnFarthestDirectionToFood();
+//        timer->stop();
+        moveSnake(returnFarthestDirectionToFood());
     }
 }
