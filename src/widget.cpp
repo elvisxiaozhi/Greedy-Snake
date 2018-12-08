@@ -27,7 +27,7 @@ Widget::Widget(QWidget *parent) :
     generateFood();
     showSnakeAndFood();
 
-    timer = new QTimer(this); 
+    timer = new QTimer(this);
     timer->start(50);
 
     connect(timer, &QTimer::timeout, this, &Widget::whenTimeOut);
@@ -305,12 +305,10 @@ void Widget::BFS(int row, int col, int option, QVector<std::pair<int, int> > mVe
             queue.push_back(root->makeChild(curr, neighbors[i].first, neighbors[i].second));
             if (option == FIND_FOOD) {
                 if (neighbors[i].first == foodRow && neighbors[i].second == foodCol)
-                    delete curr;
                     return;
             }
             if (option == FIND_TAIL) {
                 if (neighbors[i].first == mVec[mVec.size() - 1].first && neighbors[i].second == mVec[mVec.size() - 1].second)
-                    delete curr;
                     return;
             }
         }
@@ -339,12 +337,10 @@ void Widget::DFS(int row, int col, int option)
 
         if (option == FIND_FOOD) {
             if (row == foodRow && col == foodCol)
-                delete curr;
                 return;
         }
         else if (option == FIND_TAIL) {
             if (row == virtualSnake.back().first && col == virtualSnake.back().second)
-                delete curr;
                 return;
         }
 
@@ -600,6 +596,6 @@ void Widget::whenTimeOut()
             return;
         }
 
-//        moveSnake(returnFarthestDirectionToFood());
+        moveSnake(returnFarthestDirectionToFood());
     }
 }
