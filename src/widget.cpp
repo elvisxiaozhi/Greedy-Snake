@@ -5,8 +5,8 @@
 #include <QQueue>
 #include <QStack>
 
-const int Widget::ROWS = 5; //12
-const int Widget::COLS = 5;
+const int Widget::ROWS = 12; //12
+const int Widget::COLS = 12;
 const int Widget::NO_DIRECTION = -1;
 const int Widget::UP = 0;
 const int Widget::DOWN = 1;
@@ -305,10 +305,12 @@ void Widget::BFS(int row, int col, int option, QVector<std::pair<int, int> > mVe
             queue.push_back(root->makeChild(curr, neighbors[i].first, neighbors[i].second));
             if (option == FIND_FOOD) {
                 if (neighbors[i].first == foodRow && neighbors[i].second == foodCol)
+                    delete curr;
                     return;
             }
             if (option == FIND_TAIL) {
                 if (neighbors[i].first == mVec[mVec.size() - 1].first && neighbors[i].second == mVec[mVec.size() - 1].second)
+                    delete curr;
                     return;
             }
         }
@@ -337,52 +339,18 @@ void Widget::DFS(int row, int col, int option)
 
         if (option == FIND_FOOD) {
             if (row == foodRow && col == foodCol)
+                delete curr;
                 return;
         }
         else if (option == FIND_TAIL) {
             if (row == virtualSnake.back().first && col == virtualSnake.back().second)
+                delete curr;
                 return;
         }
 
         QVector<std::pair<int, int> > neighbors = returnNbrPlaces(row, col);
         for (int i = 0; i < neighbors.size(); ++i) {
             stack.push(root->makeChild(curr, neighbors[i].first, neighbors[i].second));
-        }
-    }
-
-    delete curr;
-}
-
-void Widget::IDDFS(int row, int col, int option)
-{
-    resetVisited(option);
-
-    QStack<Node *> stack;
-    root = new Node(row, col);
-    stack.push(root);
-
-    Node *curr = nullptr;
-
-    while (!stack.empty()) {
-        row = stack.top()->row;
-        col = stack.top()->col;
-        curr = stack.top();
-        stack.pop();
-
-        boardLblVec[row][col]->visited = true;
-
-        QVector<std::pair<int, int> > neighbors = returnNbrPlaces(row, col);
-        for (int i = 0; i < neighbors.size(); ++i) {
-            stack.push(root->makeChild(curr, neighbors[i].first, neighbors[i].second));
-
-            if (option == FIND_FOOD) {
-                if (neighbors[i].first == foodRow && neighbors[i].second == foodCol)
-                    return;
-            }
-            else if (option == FIND_TAIL) {
-                if (neighbors[i].first == virtualSnake.back().first && neighbors[i].second == virtualSnake.back().second)
-                    return;
-            }
         }
     }
 
@@ -634,4 +602,5 @@ void Widget::whenTimeOut()
 
         moveSnake(returnFarthestDirectionToFood());
     }
+            timer->stop();
 }
