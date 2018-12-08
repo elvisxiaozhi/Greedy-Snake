@@ -600,7 +600,6 @@ void Widget::whenTimeOut()
             return;
         }
 
-        moveSnake(returnFarthestDirectionToFood());
+//        moveSnake(returnFarthestDirectionToFood());
     }
-            timer->stop();
 }
