@@ -5,8 +5,8 @@
 #include <QQueue>
 #include <QStack>
 
-const int Widget::ROWS = 12; //12
-const int Widget::COLS = 12;
+const int Widget::ROWS = 5; //12
+const int Widget::COLS = 5;
 const int Widget::NO_DIRECTION = -1;
 const int Widget::UP = 0;
 const int Widget::DOWN = 1;
@@ -30,7 +30,7 @@ Widget::Widget(QWidget *parent) :
     timer = new QTimer(this); 
     timer->start(50);
 
-    connect(timer, &QTimer::timeout, this, &Widget::whenTimeOut2);
+    connect(timer, &QTimer::timeout, this, &Widget::whenTimeOut);
 }
 
 Widget::~Widget()
@@ -583,9 +583,6 @@ void Widget::keyPressEvent(QKeyEvent *event)
         moveSnake(snakeMoveDirection);
 
     }
-
-//    if (event->key() == Qt::Key_Space)
-        timer->start(50);
 }
 
 void Widget::whenTimeOut()
@@ -606,41 +603,6 @@ void Widget::whenTimeOut()
             return;
         }
 
-//        QVector<int> moveablePlaces = returnMoveablePlaces();
-//        QVector<int> findTailPath;
-
-//        for (int i = 0; i < moveablePlaces.size(); ++i) {
-//            moveVirtualSnake(moveablePlaces[i]);
-//            if (canFindTail())
-//                findTailPath.push_back(moveablePlaces[i]);
-//        }
-
-//        int i = 0;
-//        if (findTailPath.empty()) {
-//            i = rand() % moveablePlaces.size();
-//            moveSnake(moveablePlaces[i]);
-//        }
-//        else {
-//            i = rand() % findTailPath.size();
-//            moveSnake(findTailPath[i]);
-//        }
-    }
-}
-
-void Widget::whenTimeOut2()
-{
-    if (canFindFood()) {
-        if (canFindTail())
-            moveSnake(snakeMoveDirection);
-
-        virtualSnake.clear();
-        virtualSnake = snakeVec;
-    }
-    if (canFindFood() == false || canFindTail() == false) {
-//        QVector<int> moveablePlaces = returnMoveablePlaces();
-//        qDebug() << "moveablePlaces" << moveablePlaces;
-//        qDebug() << returnFarthestDirectionToFood();
-//        timer->stop();
         moveSnake(returnFarthestDirectionToFood());
     }
 }

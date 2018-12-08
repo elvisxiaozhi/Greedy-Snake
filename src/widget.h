@@ -73,7 +73,6 @@ protected:
 
 private slots:
     void whenTimeOut();
-    void whenTimeOut2();
 };
 
 #endif // WIDGET_H
