@@ -353,6 +353,42 @@ void Widget::DFS(int row, int col, int option)
     delete curr;
 }
 
+void Widget::IDDFS(int row, int col, int option)
+{
+    resetVisited(option);
+
+    QStack<Node *> stack;
+    root = new Node(row, col);
+    stack.push(root);
+
+    Node *curr = nullptr;
+
+    while (!stack.empty()) {
+        row = stack.top()->row;
+        col = stack.top()->col;
+        curr = stack.top();
+        stack.pop();
+
+        boardLblVec[row][col]->visited = true;
+
+        QVector<std::pair<int, int> > neighbors = returnNbrPlaces(row, col);
+        for (int i = 0; i < neighbors.size(); ++i) {
+            stack.push(root->makeChild(curr, neighbors[i].first, neighbors[i].second));
+
+            if (option == FIND_FOOD) {
+                if (neighbors[i].first == foodRow && neighbors[i].second == foodCol)
+                    return;
+            }
+            else if (option == FIND_TAIL) {
+                if (neighbors[i].first == virtualSnake.back().first && neighbors[i].second == virtualSnake.back().second)
+                    return;
+            }
+        }
+    }
+
+    delete curr;
+}
+
 QVector<std::pair<int, int> > Widget::returnPath(int option)
 {
     QVector<std::pair<int, int> > path;
@@ -457,8 +493,6 @@ int Widget::returnFarthestDirectionToFood()
     std::sort(moveablePlaces.begin(), moveablePlaces.end());
     std::sort(preferred.begin(), preferred.end());
 
-    qDebug() <<"P" <<  preferred;
-
     QVector<int> common;
     std::set_intersection(moveablePlaces.begin(), moveablePlaces.end(),
                           preferred.begin(), preferred.end(),
@@ -474,14 +508,9 @@ int Widget::returnFarthestDirectionToFood()
         return common.front();
     }
     else {
-//        for (int i = 0; i < common.size(); ++i) {
-
-//        }
         res = rand() % common.size();
         res = common[res];
     }
-
-    qDebug() << common;
 
     return res;
 }

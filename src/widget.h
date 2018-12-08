@@ -57,6 +57,7 @@ private:
     QVector<std::pair<int, int> > returnNbrPlaces(int, int);
     void BFS(int, int, int, QVector<std::pair<int, int> >);
     void DFS(int, int, int);
+    void IDDFS(int, int, int); //Iterative Deepening Depth First Search
     QVector<std::pair<int, int> > returnPath(int);
     bool canFindObject(int, int, QVector<std::pair<int, int> >);
     void moveVirtualSnake(int);
