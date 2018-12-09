@@ -7,11 +7,11 @@
 
 struct Node
 {
-    int row, col;
+    int row, col, cost;
     bool visited;
     QVector<Node *> child;
     Node *childNode;
-    Node(int x, int y) : row(x), col(y), childNode(nullptr) { visited = false; }
+    Node(int x, int y) : row(x), col(y), childNode(nullptr) { visited = false; cost = INT_MAX; }
 
     void rootToLeaf(Node *node, QVector<std::pair<int, int> > path, QVector<QVector<std::pair<int, int> > > &res) {
         if (node == nullptr)
@@ -33,6 +33,47 @@ struct Node
         root->child.push_back(new Node(row, col));
         Node *temp = root->child[root->child.size() - 1];
         return temp;
+    }
+
+    Node *returnMinCostOfUnvisitedNode(Node *root) {
+        if (root == nullptr)
+            return root;
+
+        Node *res = nullptr;
+        int minCost = INT_MAX;
+
+        QQueue<Node *> queue;
+        queue.push_back(root);
+
+        Node *curr = nullptr;
+
+        while (queue.empty() == false) {
+            int n = queue.size();
+
+            while (n > 0) {
+                curr = queue.front();
+                queue.pop_front();
+
+                if (curr->visited == false) {
+                    if (minCost > curr->cost) {
+                        res = curr;
+                        minCost = curr->cost;
+                    }
+                }
+
+                for (int i = 0; i < curr->child.size(); ++i) {
+                    if (curr->child[i] != nullptr) {
+                        queue.push_back(curr->child[i]);
+                    }
+                }
+
+                --n;
+            }
+        }
+
+        delete curr;
+
+        return res;
     }
 
     int returnTreeSize(Node* node) {
