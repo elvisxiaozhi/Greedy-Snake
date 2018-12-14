@@ -200,20 +200,6 @@ void Widget::moveSnakeHead(int direction, QVector<std::pair<int, int> > &snake)
 
 bool Widget::canFindFood()
 {
-    BFS(snakeVec.front().first, snakeVec.front().second, FIND_FOOD, snakeVec);
-    QVector<std::pair<int, int> > path = returnPath(FIND_FOOD);
-
-    if (!path.empty()) {
-        moveVirtualSnake(path);
-        snakeMoveDirection = returnSnakeMoveDirection(path);
-        return true;
-    }
-
-    return false;
-}
-
-bool Widget::canFindFood2()
-{
     dijkstra(snakeVec.front().first, snakeVec.front().second, FIND_FOOD, snakeVec);
     QVector<std::pair<int, int> > path = returnPath2(FIND_FOOD);
 
@@ -227,17 +213,6 @@ bool Widget::canFindFood2()
 }
 
 bool Widget::canFindTail()
-{
-    BFS(virtualSnake.front().first, virtualSnake.front().second, FIND_TAIL, virtualSnake);
-    QVector<std::pair<int, int> > path = returnPath(FIND_TAIL);
-
-    if (!path.empty())
-        return true;
-
-    return false;
-}
-
-bool Widget::canFindTail3()
 {
     dijkstra(virtualSnake.front().first, virtualSnake.front().second, FIND_TAIL, virtualSnake);
     QVector<std::pair<int, int> > path = returnPath2(FIND_TAIL);
@@ -305,42 +280,6 @@ QVector<std::pair<int, int> > Widget::returnNbrPlaces(int row, int col)
     }
 
     return res;
-}
-
-void Widget::BFS(int row, int col, int option, QVector<std::pair<int, int> > mVec)
-{
-    resetVisited(option);
-
-    QQueue<Node *> queue;
-    root = new Node(row, col);
-    queue.push_back(root);
-
-    Node *curr = nullptr;
-
-    while (!queue.empty()) {
-        row = queue.front()->row;
-        col = queue.front()->col;
-        curr = queue.front();
-        queue.pop_front();
-
-        boardLblVec[row][col]->visited = true;
-
-        QVector<std::pair<int, int> > neighbors = returnNbrPlaces(row, col);
-
-        for (int i = 0; i < neighbors.size(); ++i) {
-            queue.push_back(root->makeChild(curr, neighbors[i].first, neighbors[i].second));
-            if (option == FIND_FOOD) {
-                if (neighbors[i].first == foodRow && neighbors[i].second == foodCol)
-                    return;
-            }
-            if (option == FIND_TAIL) {
-                if (neighbors[i].first == mVec[mVec.size() - 1].first && neighbors[i].second == mVec[mVec.size() - 1].second)
-                    return;
-            }
-        }
-    }
-
-    delete curr;
 }
 
 void Widget::dijkstra(int row, int col, int option, QVector<std::pair<int, int> > mVec)
@@ -692,15 +631,15 @@ void Widget::keyPressEvent(QKeyEvent *event)
 
 void Widget::whenTimeOut()
 {
-    if (canFindFood2()) {
-        if (canFindTail3()) {
+    if (canFindFood()) {
+        if (canFindTail()) {
             moveSnake(snakeMoveDirection);
         }
 
         virtualSnake.clear();
         virtualSnake = snakeVec;
     }
-    if (canFindFood2() == false || canFindTail3() == false) {
+    if (canFindFood() == false || canFindTail() == false) {
         if (availPlaces.size() == 1 && isFoodAround() == true) {
             snakeVec.push_front(std::make_pair(foodRow, foodCol));
             showSnakeAndFood();
