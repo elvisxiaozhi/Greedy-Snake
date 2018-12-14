@@ -6,8 +6,8 @@
 #include <QStack>
 #include <queue>
 
-const int Widget::ROWS = 5; //12
-const int Widget::COLS = 5;
+const int Widget::ROWS = 20; //12
+const int Widget::COLS = 20;
 const int Widget::NO_DIRECTION = -1;
 const int Widget::UP = 0;
 const int Widget::DOWN = 1;
@@ -230,6 +230,17 @@ bool Widget::canFindTail()
 {
     BFS(virtualSnake.front().first, virtualSnake.front().second, FIND_TAIL, virtualSnake);
     QVector<std::pair<int, int> > path = returnPath(FIND_TAIL);
+
+    if (!path.empty())
+        return true;
+
+    return false;
+}
+
+bool Widget::canFindTail3()
+{
+    dijkstra(virtualSnake.front().first, virtualSnake.front().second, FIND_TAIL, virtualSnake);
+    QVector<std::pair<int, int> > path = returnPath2(FIND_TAIL);
 
     if (!path.empty())
         return true;
@@ -682,13 +693,14 @@ void Widget::keyPressEvent(QKeyEvent *event)
 void Widget::whenTimeOut()
 {
     if (canFindFood2()) {
-        if (canFindTail())
+        if (canFindTail3()) {
             moveSnake(snakeMoveDirection);
+        }
 
         virtualSnake.clear();
         virtualSnake = snakeVec;
     }
-    if (canFindFood2() == false || canFindTail() == false) {
+    if (canFindFood2() == false || canFindTail3() == false) {
         if (availPlaces.size() == 1 && isFoodAround() == true) {
             snakeVec.push_front(std::make_pair(foodRow, foodCol));
             showSnakeAndFood();

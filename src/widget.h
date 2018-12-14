@@ -55,6 +55,7 @@ private:
     bool canFindFood();
     bool canFindFood2();
     bool canFindTail();
+    bool canFindTail3();
     bool canFindTail2();
     void resetVisited(int);
     QVector<std::pair<int, int> > returnNbrPlaces(int, int);
