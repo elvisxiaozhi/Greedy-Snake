@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QQueue>
 #include <QStack>
+#include <queue>
 
 const int Widget::ROWS = 12; //12
 const int Widget::COLS = 12;
@@ -315,6 +316,50 @@ void Widget::BFS(int row, int col, int option, QVector<std::pair<int, int> > mVe
     }
 
     delete curr;
+}
+
+void Widget::dijkstra(int row, int col, int option, QVector<std::pair<int, int> > mVec)
+{
+    resetVisited(option);
+
+    root = new Node(row, col);
+    root->cost =  0;
+    Node *curr = nullptr;
+
+    std::priority_queue<int, std::vector<paired>, std::greater<paired> > queue;
+    QVector<std::pair<int, int> > visited;
+
+    while (queue.empty() == false) {
+        curr = queue.top().second;
+        row = curr->row;
+        col = curr->col;
+
+        queue.pop();
+
+        if (option == FIND_FOOD) {
+            if (row == foodRow && row == foodCol) {
+                return;
+            }
+        }
+        else if (option == FIND_TAIL) {
+            if (row == mVec.back().first && col == mVec.back().second) {
+                return;
+            }
+        }
+
+        auto it = std::make_pair(row, col);
+        if (std::find(visited.begin(), visited.end(), it) != visited.end()) {
+            continue;
+        }
+        else {
+            QVector<std::pair<int, int> > neighbors = returnNbrPlaces(row, col);
+            for (int i = 0; i < neighbors.size(); ++i) {
+                queue.push(std::make_pair(curr->cost + 1, root->makeChild(curr, neighbors[i].first, neighbors[i].second, curr->cost + 1)));
+            }
+
+            visited.push_back(it);
+        }
+    }
 }
 
 void Widget::DFS(int row, int col, int option)

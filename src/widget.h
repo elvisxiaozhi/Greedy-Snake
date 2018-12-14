@@ -6,6 +6,8 @@
 #include <QTimer>
 #include "tree.h"
 
+typedef std::pair<int, Node *> paired;
+
 namespace Ui {
 class Widget;
 }
@@ -56,6 +58,7 @@ private:
     void resetVisited(int);
     QVector<std::pair<int, int> > returnNbrPlaces(int, int);
     void BFS(int, int, int, QVector<std::pair<int, int> >);
+    void dijkstra(int, int, int, QVector<std::pair<int, int> >);
     void DFS(int, int, int);
     QVector<std::pair<int, int> > returnPath(int);
     bool canFindObject(int, int, QVector<std::pair<int, int> >);

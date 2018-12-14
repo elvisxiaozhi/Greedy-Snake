@@ -35,6 +35,13 @@ struct Node
         return temp;
     }
 
+    Node *makeChild(Node *node, int row, int col, int cost) {
+        node->child.push_back(new Node(row, col));
+        node->child.back()->cost = cost;
+        Node *temp = node->child.back();
+        return temp;
+    }
+
     Node *returnMinCostOfUnvisitedNode(Node *root) {
         if (root == nullptr)
             return root;
