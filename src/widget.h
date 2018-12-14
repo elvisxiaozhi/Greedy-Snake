@@ -53,6 +53,7 @@ private:
     void moveSnake(int);
     void moveSnakeHead(int, QVector<std::pair<int, int> > &);
     bool canFindFood();
+    bool canFindFood2();
     bool canFindTail();
     bool canFindTail2();
     void resetVisited(int);
@@ -61,6 +62,7 @@ private:
     void dijkstra(int, int, int, QVector<std::pair<int, int> >);
     void DFS(int, int, int);
     QVector<std::pair<int, int> > returnPath(int);
+    QVector<std::pair<int, int> > returnPath2(int);
     bool canFindObject(int, int, QVector<std::pair<int, int> >);
     void moveVirtualSnake(int);
     void moveVirtualSnake(QVector<std::pair<int, int> >);
