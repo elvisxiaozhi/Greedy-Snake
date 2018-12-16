@@ -6,7 +6,7 @@
 #include <QStack>
 #include <queue>
 
-const int Widget::ROWS = 20; //12
+const int Widget::ROWS = 20; //20
 const int Widget::COLS = 20;
 const int Widget::NO_DIRECTION = -1;
 const int Widget::UP = 0;
@@ -114,7 +114,7 @@ void Widget::generateFood()
 void Widget::gameOver()
 {
     timer->stop();
-    qDebug() << "Lost";
+    qDebug() << "Game Over!";
 }
 
 bool Widget::hasLost()
@@ -201,7 +201,7 @@ void Widget::moveSnakeHead(int direction, QVector<std::pair<int, int> > &snake)
 bool Widget::canFindFood()
 {
     dijkstra(snakeVec.front().first, snakeVec.front().second, FIND_FOOD, snakeVec);
-    QVector<std::pair<int, int> > path = returnPath2(FIND_FOOD);
+    QVector<std::pair<int, int> > path = returnPath(FIND_FOOD);
 
     if (path.empty() == false) {
         moveVirtualSnake(path);
@@ -215,7 +215,7 @@ bool Widget::canFindFood()
 bool Widget::canFindTail()
 {
     dijkstra(virtualSnake.front().first, virtualSnake.front().second, FIND_TAIL, virtualSnake);
-    QVector<std::pair<int, int> > path = returnPath2(FIND_TAIL);
+    QVector<std::pair<int, int> > path = returnPath(FIND_TAIL);
 
     if (!path.empty())
         return true;
@@ -304,12 +304,12 @@ void Widget::dijkstra(int row, int col, int option, QVector<std::pair<int, int> 
 
         if (option == FIND_FOOD) {
             if (row == foodRow && col == foodCol) {
-                return;
+                break;
             }
         }
         else if (option == FIND_TAIL) {
             if (row == mVec.back().first && col == mVec.back().second) {
-                return;
+                break;
             }
         }
 
@@ -326,6 +326,8 @@ void Widget::dijkstra(int row, int col, int option, QVector<std::pair<int, int> 
             visited.push_back(it);
         }
     }
+
+    delete curr;
 }
 
 void Widget::DFS(int row, int col, int option)
@@ -370,30 +372,6 @@ QVector<std::pair<int, int> > Widget::returnPath(int option)
     res.clear();
     root->rootToLeaf(root, path, res);
 
-    for (int i = 0; i < res.size(); ++i) {
-        if (option == FIND_FOOD) {
-            if (canFindObject(foodRow, foodCol, res[i])) {
-                path = res[i];
-                return path;
-            }
-        }
-        if (option == FIND_TAIL) {
-            if (canFindObject(virtualSnake[virtualSnake.size() - 1].first, virtualSnake[virtualSnake.size() - 1].second, res[i])) {
-                path = res[i];
-                return path;
-            }
-        }
-    }
-
-    return path;
-}
-
-QVector<std::pair<int, int> > Widget::returnPath2(int option)
-{
-    QVector<std::pair<int, int> > path;
-    res.clear();
-    root->rootToLeaf(root, path, res);
-
     QVector<QVector<std::pair<int, int> > > avaiablePath;
 
     for (int i = 0; i < res.size(); ++i) {
@@ -410,6 +388,7 @@ QVector<std::pair<int, int> > Widget::returnPath2(int option)
     }
 
     if (avaiablePath.empty()) {
+//        root->deleteTree(root);
         return path;
     }
 
@@ -424,6 +403,8 @@ QVector<std::pair<int, int> > Widget::returnPath2(int option)
             }
         }
     }
+
+//    root->deleteTree(root);
 
     return avaiablePath[index];
 }
