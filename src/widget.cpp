@@ -372,6 +372,8 @@ QVector<std::pair<int, int> > Widget::returnPath(int option)
     res.clear();
     root->rootToLeaf(root, path, res);
 
+    root->deleteTree(root);
+
     QVector<QVector<std::pair<int, int> > > avaiablePath;
 
     for (int i = 0; i < res.size(); ++i) {
@@ -388,7 +390,6 @@ QVector<std::pair<int, int> > Widget::returnPath(int option)
     }
 
     if (avaiablePath.empty()) {
-//        root->deleteTree(root);
         return path;
     }
 
@@ -403,8 +404,6 @@ QVector<std::pair<int, int> > Widget::returnPath(int option)
             }
         }
     }
-
-//    root->deleteTree(root);
 
     return avaiablePath[index];
 }

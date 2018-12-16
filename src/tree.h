@@ -104,12 +104,11 @@ struct Node
             deleteTree(node->child[i]);
         }
 
-        delete node;
-
         for (int i = 0; i < node->child.size(); ++i) {
             node->child[i] = nullptr;
         }
 
+        delete node;
         node = nullptr;
     }
 };
