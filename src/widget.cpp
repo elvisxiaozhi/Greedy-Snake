@@ -200,8 +200,8 @@ void Widget::moveSnakeHead(int direction, QVector<std::pair<int, int> > &snake)
 
 bool Widget::canFindFood()
 {
-    dijkstra(snakeVec.front().first, snakeVec.front().second, FIND_FOOD, snakeVec);
-    QVector<std::pair<int, int> > path = returnPath(FIND_FOOD);
+    dijkstra2(snakeVec.front().first, snakeVec.front().second, FIND_FOOD, snakeVec);
+    QVector<std::pair<int, int> > path = returnPath2(FIND_FOOD);
 
     if (path.empty() == false) {
         moveVirtualSnake(path);
@@ -214,8 +214,8 @@ bool Widget::canFindFood()
 
 bool Widget::canFindTail()
 {
-    dijkstra(virtualSnake.front().first, virtualSnake.front().second, FIND_TAIL, virtualSnake);
-    QVector<std::pair<int, int> > path = returnPath(FIND_TAIL);
+    dijkstra2(virtualSnake.front().first, virtualSnake.front().second, FIND_TAIL, virtualSnake);
+    QVector<std::pair<int, int> > path = returnPath2(FIND_TAIL);
 
     if (!path.empty())
         return true;
@@ -330,6 +330,47 @@ void Widget::dijkstra(int row, int col, int option, QVector<std::pair<int, int> 
     delete curr;
 }
 
+void Widget::dijkstra2(int row, int col, int option, QVector<std::pair<int, int> > mVec)
+{
+    resetVisited(option);
+
+    testRoot = make_shared<Node>(row, col);
+    testRoot->cost = 0;
+
+    std::priority_queue<int, vector<testPaired>, std::greater<testPaired> > queue;
+    QVector<pair<int, int> > visited;
+
+    queue.push(make_pair(testRoot->cost, testRoot));
+
+    while (queue.empty() == false) {
+        shared_ptr<Node> curr = queue.top().second;
+        row = curr->row;
+        col = curr->col;
+
+        queue.pop();
+
+        if (option == FIND_FOOD) {
+            if (row == foodRow && col == foodCol)
+                break;
+        }
+        else if (option == FIND_TAIL) {
+            if (row == mVec.back().first && col == mVec.back().second)
+                break;
+        }
+
+        auto it = make_pair(row, col);
+        if (std::find(visited.begin(), visited.end(), it) != visited.end())
+            continue;
+        else {
+            QVector<pair<int, int> > neighbors = returnNbrPlaces(row, col);
+            for (int i = 0; i < neighbors.size(); ++i)
+                queue.push(make_pair(curr->cost + 1, testRoot->createChild(curr, neighbors[i].first, neighbors[i].second, curr->cost + 1)));
+
+            visited.push_back(it);
+        }
+    }
+}
+
 void Widget::DFS(int row, int col, int option)
 {
     resetVisited(FIND_TAIL);
@@ -366,6 +407,38 @@ void Widget::DFS(int row, int col, int option)
     delete curr;
 }
 
+void Widget::DFS2(int row, int col, int option)
+{
+    resetVisited(FIND_TAIL);
+
+    QStack<shared_ptr<Node> > stack;
+    testRoot = make_shared<Node>(row, col);
+    stack.push_back(testRoot);
+
+    while (stack.empty() == false) {
+        shared_ptr<Node> curr = stack.top();
+        row = curr->row;
+        col = curr->col;
+        stack.pop();
+
+        boardLblVec[row][col]->visited = true;
+
+        if (option == FIND_FOOD) {
+            if (row == foodRow && col == foodCol)
+                return;
+        }
+        else if (option == FIND_TAIL) {
+            if (row == virtualSnake.back().first && col == virtualSnake.back().second)
+                return;
+        }
+
+        QVector<pair<int, int> > neighbors = returnNbrPlaces(row, col);
+        for (int i = 0; i < neighbors.size(); ++i) {
+            stack.push(testRoot->createChild(curr, neighbors[i].first, neighbors[i].second));
+        }
+    }
+}
+
 QVector<std::pair<int, int> > Widget::returnPath(int option)
 {
     QVector<std::pair<int, int> > path;
@@ -373,6 +446,46 @@ QVector<std::pair<int, int> > Widget::returnPath(int option)
     root->rootToLeaf(root, path, res);
 
     root->deleteTree(root);
+
+    QVector<QVector<std::pair<int, int> > > avaiablePath;
+
+    for (int i = 0; i < res.size(); ++i) {
+        if (option == FIND_FOOD) {
+            if (canFindObject(foodRow, foodCol, res[i])) {
+                avaiablePath.push_back(res[i]);
+            }
+        }
+        else if (option == FIND_TAIL) {
+            if (canFindObject(virtualSnake.back().first, virtualSnake.back().second, res[i])) {
+                avaiablePath.push_back(res[i]);
+            }
+        }
+    }
+
+    if (avaiablePath.empty()) {
+        return path;
+    }
+
+    int index = 0;
+
+    if (avaiablePath.size() > 1) {
+        int n = avaiablePath.front().size();
+        for (int i = 0; i < avaiablePath.size(); ++i) {
+            if (avaiablePath[i].size() < n) {
+                n = avaiablePath[i].size();
+                index = i;
+            }
+        }
+    }
+
+    return avaiablePath[index];
+}
+
+QVector<std::pair<int, int> > Widget::returnPath2(int option)
+{
+    QVector<std::pair<int, int> > path;
+    res.clear();
+    testRoot->rootToLeaf(testRoot, path, res);
 
     QVector<QVector<std::pair<int, int> > > avaiablePath;
 
