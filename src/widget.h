@@ -42,8 +42,7 @@ private:
     QVector<std::pair<int, int> > availPlaces;
     QTimer *timer;
     int snakeMoveDirection;
-    Node *root;
-    shared_ptr<Node> testRoot;
+    shared_ptr<Node> root;
     QVector<QVector<std::pair<int, int> > > res;
 
     void setBoardLayout();
@@ -61,11 +60,8 @@ private:
     void resetVisited(int);
     QVector<std::pair<int, int> > returnNbrPlaces(int, int);
     void dijkstra(int, int, int, QVector<std::pair<int, int> >);
-    void dijkstra2(int, int, int, QVector<std::pair<int, int> >);
     void DFS(int, int, int);
-    void DFS2(int, int, int);
     QVector<std::pair<int, int> > returnPath(int);
-    QVector<std::pair<int, int> > returnPath2(int);
     bool canFindObject(int, int, QVector<std::pair<int, int> >);
     void moveVirtualSnake(int);
     void moveVirtualSnake(QVector<std::pair<int, int> >);
