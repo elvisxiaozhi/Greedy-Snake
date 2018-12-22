@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+CONFIG += c++14 #supporting std::make_unique in this project
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

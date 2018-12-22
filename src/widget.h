@@ -5,6 +5,7 @@
 #include "boardlabel.h"
 #include <QTimer>
 #include "tree.h"
+#include <memory>
 
 typedef std::pair<int, Node *> paired;
 
