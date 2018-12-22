@@ -289,7 +289,7 @@ void Widget::dijkstra(int row, int col, int option, QVector<std::pair<int, int> 
     root = make_shared<Node>(row, col);
     root->cost = 0;
 
-    std::priority_queue<int, vector<testPaired>, std::greater<testPaired> > queue;
+    std::priority_queue<int, vector<paired>, std::greater<paired> > queue;
     QVector<pair<int, int> > visited;
 
     queue.push(make_pair(root->cost, root));

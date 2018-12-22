@@ -7,8 +7,7 @@
 #include "tree.h"
 #include <memory>
 
-typedef pair<int, Node *> paired;
-typedef pair<int, shared_ptr<Node> > testPaired;
+typedef pair<int, shared_ptr<Node> > paired;
 
 namespace Ui {
 class Widget;
