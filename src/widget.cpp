@@ -223,17 +223,6 @@ bool Widget::canFindTail()
     return false;
 }
 
-bool Widget::canFindTail2()
-{
-    DFS(virtualSnake.front().first, virtualSnake.front().second, FIND_TAIL);
-    QVector<std::pair<int, int> > path = returnPath(FIND_TAIL);
-
-    if (!path.empty())
-        return true;
-
-    return false;
-}
-
 void Widget::resetVisited(int option)
 {
     for (int i = 0; i < boardLblVec.size(); ++i) {
@@ -438,28 +427,28 @@ QVector<int> Widget::returnMoveablePlaces()
 
     if (isPlaceAvaiable(snakeVec.front().first - 1, snakeVec.front().second)) {
         moveVirtualSnake(UP);
-        if (canFindTail2()) {
+        if (canFindTail()) {
             res.push_back(UP);
         }
     }
 
     if (isPlaceAvaiable(snakeVec.front().first + 1, snakeVec.front().second)) {
         moveVirtualSnake(DOWN);
-        if (canFindTail2()) {
+        if (canFindTail()) {
             res.push_back(DOWN);
         }
     }
 
     if (isPlaceAvaiable(snakeVec.front().first, snakeVec.front().second - 1)) {
         moveVirtualSnake(LEFT);
-        if (canFindTail2()) {
+        if (canFindTail()) {
             res.push_back(LEFT);
         }
     }
 
     if (isPlaceAvaiable(snakeVec.front().first, snakeVec.front().second + 1)) {
         moveVirtualSnake(RIGHT);
-        if (canFindTail2()) {
+        if (canFindTail()) {
             res.push_back(RIGHT);
         }
     }
@@ -592,7 +581,6 @@ void Widget::keyPressEvent(QKeyEvent *event)
         }
 
         moveSnake(snakeMoveDirection);
-
     }
 }
 
