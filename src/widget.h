@@ -69,6 +69,7 @@ private:
     bool isPlaceAvaiable(int, int);
     bool isFoodAround();
     int returnSnakeMoveDirection(QVector<std::pair<int, int> >);
+    void walkSCurve();
 
 protected:
     void keyPressEvent(QKeyEvent *);

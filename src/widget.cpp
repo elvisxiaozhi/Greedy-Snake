@@ -6,8 +6,8 @@
 #include <QStack>
 #include <queue>
 
-const int Widget::ROWS = 20; //20
-const int Widget::COLS = 20;
+const int Widget::ROWS = 15; //20
+const int Widget::COLS = 15;
 const int Widget::NO_DIRECTION = -1;
 const int Widget::UP = 0;
 const int Widget::DOWN = 1;
@@ -29,7 +29,7 @@ Widget::Widget(QWidget *parent) :
     showSnakeAndFood();
 
     timer = new QTimer(this);
-    timer->start(50);
+    timer->start(10);
 
     connect(timer, &QTimer::timeout, this, &Widget::whenTimeOut);
 }
@@ -562,6 +562,28 @@ int Widget::returnSnakeMoveDirection(QVector<std::pair<int, int> > path)
         return LEFT;
 
     return 0;
+}
+
+void Widget::walkSCurve()
+{
+    QVector<int> moveablePlaces = returnMoveablePlaces();
+
+    if (snakeVec.front().first >= 0 && snakeVec.front().first < ROWS) {
+        if (std::find(moveablePlaces.begin(), moveablePlaces.end(), DOWN) != moveablePlaces.end()) {
+            snakeMoveDirection = DOWN;
+            return;
+        }
+        else if (std::find(moveablePlaces.begin(), moveablePlaces.end(), RIGHT) != moveablePlaces.end()) {
+            snakeMoveDirection = RIGHT;
+            return;
+        }
+    }
+    if (snakeVec.front().first == ROWS) {
+        if (std::find(moveablePlaces.begin(), moveablePlaces.end(), RIGHT) != moveablePlaces.end()) {
+            snakeMoveDirection = RIGHT;
+            return;
+        }
+    }
 }
 
 void Widget::keyPressEvent(QKeyEvent *event)
