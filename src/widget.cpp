@@ -577,10 +577,26 @@ void Widget::walkSCurve()
             snakeMoveDirection = RIGHT;
             return;
         }
+        else if (std::find(moveablePlaces.begin(), moveablePlaces.end(), LEFT) != moveablePlaces.end()) {
+            snakeMoveDirection = LEFT;
+            return;
+        }
+        else if (std::find(moveablePlaces.begin(), moveablePlaces.end(), UP) != moveablePlaces.end()) {
+            snakeMoveDirection = UP;
+            return;
+        }
     }
     if (snakeVec.front().first == ROWS) {
         if (std::find(moveablePlaces.begin(), moveablePlaces.end(), RIGHT) != moveablePlaces.end()) {
             snakeMoveDirection = RIGHT;
+            return;
+        }
+        else if (std::find(moveablePlaces.begin(), moveablePlaces.end(), LEFT) != moveablePlaces.end()) {
+            snakeMoveDirection = LEFT;
+            return;
+        }
+        else if (std::find(moveablePlaces.begin(), moveablePlaces.end(), UP) != moveablePlaces.end()) {
+            snakeMoveDirection = UP;
             return;
         }
     }
@@ -617,14 +633,16 @@ void Widget::whenTimeOut()
         virtualSnake = snakeVec;
     }
     if (canFindFood() == false || canFindTail() == false) {
-        if (availPlaces.size() == 1 && isFoodAround() == true) {
-            snakeVec.push_front(std::make_pair(foodRow, foodCol));
-            showSnakeAndFood();
-            boardLblVec[foodRow][foodCol]->setStyleSheet("QLabel { background: red; }");
-            gameOver();
-            return;
-        }
+//        if (availPlaces.size() == 1 && isFoodAround() == true) {
+//            snakeVec.push_front(std::make_pair(foodRow, foodCol));
+//            showSnakeAndFood();
+//            boardLblVec[foodRow][foodCol]->setStyleSheet("QLabel { background: red; }");
+//            gameOver();
+//            return;
+//        }
 
-        moveSnake(returnFarthestDirectionToFood());
+//        moveSnake(returnFarthestDirectionToFood());
+        walkSCurve();
+        moveSnake(snakeMoveDirection);
     }
 }
