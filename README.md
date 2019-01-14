@@ -1,1 +1,1 @@
-# Greedy-Snake
+# Greedy-Snake-AI
