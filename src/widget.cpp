@@ -6,8 +6,8 @@
 #include <QStack>
 #include <queue>
 
-const int Widget::ROWS = 10; //20
-const int Widget::COLS = 10;
+const int Widget::ROWS = 20; //20
+const int Widget::COLS = 20;
 const int Widget::NO_DIRECTION = -1;
 const int Widget::UP = 0;
 const int Widget::DOWN = 1;
@@ -402,9 +402,7 @@ void Widget::moveVirtualSnake(QVector<std::pair<int, int> > path)
 
 int Widget::returnFarthestDirectionToFood()
 {
-    QVector<int> res;
-
-    int steps = 0, dir = 0;
+    int steps = 0, dir = NO_DIRECTION;
 
     if (isPlaceAvaiable(snakeVec.front().first - 1, snakeVec.front().second)) {
         moveVirtualSnake(UP);
