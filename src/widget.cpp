@@ -6,8 +6,8 @@
 #include <QStack>
 #include <queue>
 
-const int Widget::ROWS = 15; //20
-const int Widget::COLS = 15;
+const int Widget::ROWS = 10; //20
+const int Widget::COLS = 10;
 const int Widget::NO_DIRECTION = -1;
 const int Widget::UP = 0;
 const int Widget::DOWN = 1;
@@ -29,7 +29,7 @@ Widget::Widget(QWidget *parent) :
     showSnakeAndFood();
 
     timer = new QTimer(this);
-    timer->start(10);
+    timer->start(100);
 
     connect(timer, &QTimer::timeout, this, &Widget::whenTimeOut);
 }
@@ -312,38 +312,6 @@ void Widget::dijkstra(int row, int col, int option, QVector<std::pair<int, int> 
     }
 }
 
-void Widget::DFS(int row, int col, int option)
-{
-    resetVisited(FIND_TAIL);
-
-    QStack<shared_ptr<Node> > stack;
-    root = make_shared<Node>(row, col);
-    stack.push_back(root);
-
-    while (stack.empty() == false) {
-        shared_ptr<Node> curr = stack.top();
-        row = curr->row;
-        col = curr->col;
-        stack.pop();
-
-        boardLblVec[row][col]->visited = true;
-
-        if (option == FIND_FOOD) {
-            if (row == foodRow && col == foodCol)
-                return;
-        }
-        else if (option == FIND_TAIL) {
-            if (row == virtualSnake.back().first && col == virtualSnake.back().second)
-                return;
-        }
-
-        QVector<pair<int, int> > neighbors = returnNbrPlaces(row, col);
-        for (int i = 0; i < neighbors.size(); ++i) {
-            stack.push(root->createChild(curr, neighbors[i].first, neighbors[i].second));
-        }
-    }
-}
-
 QVector<std::pair<int, int> > Widget::returnPath(int option)
 {
     QVector<std::pair<int, int> > path;
@@ -459,62 +427,22 @@ QVector<int> Widget::returnMoveablePlaces()
 int Widget::returnFarthestDirectionToFood()
 {
     QVector<int> moveablePlaces = returnMoveablePlaces();
-    QVector<int> preferred = returnPreferredDirections();
 
-    std::sort(moveablePlaces.begin(), moveablePlaces.end());
-    std::sort(preferred.begin(), preferred.end());
+    int length = 0;
+    int res = moveablePlaces.front();
 
-    QVector<int> common;
-    std::set_intersection(moveablePlaces.begin(), moveablePlaces.end(),
-                          preferred.begin(), preferred.end(),
-                          std::back_inserter(common));
+    for (int i = 0; i < moveablePlaces.size(); ++i) {
+        moveVirtualSnake(moveablePlaces[i]);
+        dijkstra(virtualSnake.front().first, virtualSnake.front().second, FIND_TAIL, virtualSnake);
+        QVector<std::pair<int, int> > path = returnPath(FIND_TAIL);
 
-    if (common.empty()) {
-        common.clear();
-        common = moveablePlaces;
-    }
-
-    int res;
-    if (common.size() == 1) {
-        return common.front();
-    }
-    else {
-        res = rand() % common.size();
-        res = common[res];
+        if (path.size() > length) {
+            length = path.size();
+            res = moveablePlaces[i];
+        }
     }
 
     return res;
-}
-
-QVector<int> Widget::returnPreferredDirections()
-{
-    QVector<int> directions;
-
-    if (foodRow == snakeVec.front().first) {
-        if (snakeVec.front().second > foodCol)
-            directions.push_back(RIGHT);
-        else if (snakeVec.front().second < foodCol)
-            directions.push_back(LEFT);
-    }
-    else if (foodCol == snakeVec.front().second) {
-        if (snakeVec.front().first > foodRow)
-            directions.push_back(DOWN);
-        else if (snakeVec.front().first < foodRow)
-            directions.push_back(UP);
-    }
-    else {
-        if (snakeVec.front().first > foodRow)
-            directions.push_back(DOWN);
-        else if (snakeVec.front().first < foodRow)
-            directions.push_back(UP);
-
-        if (snakeVec.front().second > foodCol)
-            directions.push_back(RIGHT);
-        else if (snakeVec.front().second < foodCol)
-            directions.push_back(LEFT);
-    }
-
-    return directions;
 }
 
 bool Widget::isPlaceAvaiable(int row, int col)
@@ -564,44 +492,6 @@ int Widget::returnSnakeMoveDirection(QVector<std::pair<int, int> > path)
     return 0;
 }
 
-void Widget::walkSCurve()
-{
-    QVector<int> moveablePlaces = returnMoveablePlaces();
-
-    if (snakeVec.front().first >= 0 && snakeVec.front().first < ROWS) {
-        if (std::find(moveablePlaces.begin(), moveablePlaces.end(), DOWN) != moveablePlaces.end()) {
-            snakeMoveDirection = DOWN;
-            return;
-        }
-        else if (std::find(moveablePlaces.begin(), moveablePlaces.end(), RIGHT) != moveablePlaces.end()) {
-            snakeMoveDirection = RIGHT;
-            return;
-        }
-        else if (std::find(moveablePlaces.begin(), moveablePlaces.end(), LEFT) != moveablePlaces.end()) {
-            snakeMoveDirection = LEFT;
-            return;
-        }
-        else if (std::find(moveablePlaces.begin(), moveablePlaces.end(), UP) != moveablePlaces.end()) {
-            snakeMoveDirection = UP;
-            return;
-        }
-    }
-    if (snakeVec.front().first == ROWS) {
-        if (std::find(moveablePlaces.begin(), moveablePlaces.end(), RIGHT) != moveablePlaces.end()) {
-            snakeMoveDirection = RIGHT;
-            return;
-        }
-        else if (std::find(moveablePlaces.begin(), moveablePlaces.end(), LEFT) != moveablePlaces.end()) {
-            snakeMoveDirection = LEFT;
-            return;
-        }
-        else if (std::find(moveablePlaces.begin(), moveablePlaces.end(), UP) != moveablePlaces.end()) {
-            snakeMoveDirection = UP;
-            return;
-        }
-    }
-}
-
 void Widget::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down || event->key() == Qt::Key_Left || event->key() == Qt::Key_Right) {
@@ -633,16 +523,14 @@ void Widget::whenTimeOut()
         virtualSnake = snakeVec;
     }
     if (canFindFood() == false || canFindTail() == false) {
-//        if (availPlaces.size() == 1 && isFoodAround() == true) {
-//            snakeVec.push_front(std::make_pair(foodRow, foodCol));
-//            showSnakeAndFood();
-//            boardLblVec[foodRow][foodCol]->setStyleSheet("QLabel { background: red; }");
-//            gameOver();
-//            return;
-//        }
+        if (availPlaces.size() == 1 && isFoodAround() == true) {
+            snakeVec.push_front(std::make_pair(foodRow, foodCol));
+            showSnakeAndFood();
+            boardLblVec[foodRow][foodCol]->setStyleSheet("QLabel { background: red; }");
+            gameOver();
+            return;
+        }
 
-//        moveSnake(returnFarthestDirectionToFood());
-        walkSCurve();
-        moveSnake(snakeMoveDirection);
+        moveSnake(returnFarthestDirectionToFood());
     }
 }
