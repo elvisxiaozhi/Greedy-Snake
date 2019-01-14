@@ -29,7 +29,7 @@ Widget::Widget(QWidget *parent) :
     showSnakeAndFood();
 
     timer = new QTimer(this);
-    timer->start(100);
+    timer->start(20);
 
     connect(timer, &QTimer::timeout, this, &Widget::whenTimeOut);
 }
@@ -223,6 +223,17 @@ bool Widget::canFindTail()
     return false;
 }
 
+std::pair<bool, int> Widget::canGetSteps()
+{
+    dijkstra(virtualSnake.front().first, virtualSnake.front().second, FIND_TAIL, virtualSnake);
+    QVector<std::pair<int, int> > path = returnPath(FIND_TAIL);
+
+    if (!path.empty())
+        return std::make_pair(true, path.size());
+
+    return std::make_pair(false, 0);;
+}
+
 void Widget::resetVisited(int option)
 {
     for (int i = 0; i < boardLblVec.size(); ++i) {
@@ -389,60 +400,54 @@ void Widget::moveVirtualSnake(QVector<std::pair<int, int> > path)
     }
 }
 
-QVector<int> Widget::returnMoveablePlaces()
+int Widget::returnFarthestDirectionToFood()
 {
     QVector<int> res;
 
+    int steps = 0, dir = 0;
+
     if (isPlaceAvaiable(snakeVec.front().first - 1, snakeVec.front().second)) {
         moveVirtualSnake(UP);
-        if (canFindTail()) {
-            res.push_back(UP);
+        std::pair<bool, int> res = canGetSteps();
+        if (res.first == true) {
+            if (steps < res.second) {
+                steps = res.second;
+                dir = UP;
+            }
         }
     }
-
     if (isPlaceAvaiable(snakeVec.front().first + 1, snakeVec.front().second)) {
         moveVirtualSnake(DOWN);
-        if (canFindTail()) {
-            res.push_back(DOWN);
+        std::pair<bool, int> res = canGetSteps();
+        if (res.first == true) {
+            if (steps < res.second) {
+                steps = res.second;
+                dir = DOWN;
+            }
         }
     }
-
     if (isPlaceAvaiable(snakeVec.front().first, snakeVec.front().second - 1)) {
         moveVirtualSnake(LEFT);
-        if (canFindTail()) {
-            res.push_back(LEFT);
+        std::pair<bool, int> res = canGetSteps();
+        if (res.first == true) {
+            if (steps < res.second) {
+                steps = res.second;
+                dir = LEFT;
+            }
         }
     }
-
     if (isPlaceAvaiable(snakeVec.front().first, snakeVec.front().second + 1)) {
         moveVirtualSnake(RIGHT);
-        if (canFindTail()) {
-            res.push_back(RIGHT);
+        std::pair<bool, int> res = canGetSteps();
+        if (res.first == true) {
+            if (steps < res.second) {
+                steps = res.second;
+                dir = RIGHT;
+            }
         }
     }
 
-    return res;
-}
-
-int Widget::returnFarthestDirectionToFood()
-{
-    QVector<int> moveablePlaces = returnMoveablePlaces();
-
-    int length = 0;
-    int res = moveablePlaces.front();
-
-    for (int i = 0; i < moveablePlaces.size(); ++i) {
-        moveVirtualSnake(moveablePlaces[i]);
-        dijkstra(virtualSnake.front().first, virtualSnake.front().second, FIND_TAIL, virtualSnake);
-        QVector<std::pair<int, int> > path = returnPath(FIND_TAIL);
-
-        if (path.size() > length) {
-            length = path.size();
-            res = moveablePlaces[i];
-        }
-    }
-
-    return res;
+    return dir;
 }
 
 bool Widget::isPlaceAvaiable(int row, int col)
